@@ -7,6 +7,35 @@ tags:
   - python
 ---
 
+## Installation
+```
+py -m venv venv
+```
+
+## Usage
+```
+venv\Scripts\activate
+```
+
+## install dependencies
+```
+pip install -r requirements.txt
+
+
+## Run for development
+```
+fastapi dev main.py 
+```
+or 
+
+## Run for production << si vas a correr dos microservicios a la vez aclara el puerto "--port xxxx">>
+```
+fastapi run main.py
+```
+```
+<!-- incicio rapido -->
+ py -m .venv venv ;.venv\Scripts\activate;pip install -r requirements.txt;fastapi dev main.py
+
 # FastAPI Example
 
 This example starts up a [FastAPI](https://fastapi.tiangolo.com/) server.
