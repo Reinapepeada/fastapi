@@ -9,8 +9,9 @@ postgress_railway = f"postgresql://:@fastapi.railway.internal:5432/"
 
 
 
-connect_args = {"check_same_thread": False}
-engine = create_engine(postgress_railway, connect_args=connect_args)
+# connect_args = {"check_same_thread": False}
+# engine = create_engine(postgress_railway, connect_args=connect_args)
+engine = create_engine(postgress_railway)
 
 
 def create_db_and_tables():
