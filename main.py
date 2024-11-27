@@ -12,6 +12,10 @@ app = FastAPI()
 def on_startup():
     create_db_and_tables()
 
+@app.get("/")
+def read_root():
+    return {"msg": "Welcome to the Hero API!"}
+
 
 @app.post("/heroes/")
 def create_hero(hero: Hero, session: SessionDep) -> Hero:
