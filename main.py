@@ -5,10 +5,17 @@ from sqlmodel import SQLModel, select
 from database.connection.SQLConection import SessionDep, create_db_and_tables, SessionDep, drop_db_and_tables
 from sqlalchemy.exc import SQLAlchemyError
 from database.models.SQLModels import User, UserCreate, UserOut
+import os
+import uvicorn
 
 load_dotenv()
 
 app = FastAPI()
+
+if __name__ == "__main__":
+    # Leer el puerto desde la variable de entorno, con un valor por defecto (e.g., 8000)
+    port = int(os.getenv("PORT", 8000))
+    uvicorn.run(app, host="0.0.0.0", port=port)
 
 # borrar la base de datos y volverla a crear
 # @app.on_event("startup")

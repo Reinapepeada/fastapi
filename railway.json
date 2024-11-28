@@ -4,6 +4,6 @@
     "builder": "NIXPACKS"
   },
   "deploy": {
-    "startCommand": "fastapi run main.py"
+    "startCommand": "fastapi dev main.py"
   }
 }
