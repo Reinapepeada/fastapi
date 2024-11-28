@@ -4,7 +4,7 @@ from fastapi import FastAPI, HTTPException, Query
 from sqlmodel import SQLModel, select
 from database.connection.SQLConection import SessionDep, create_db_and_tables, SessionDep, drop_db_and_tables
 from sqlalchemy.exc import SQLAlchemyError
-from database.models.SQLModels import User, UserCreate, UserOut
+from database.models.SQLModels import User, UserCreate, UserOut, UserUpdate
 import os
 import uvicorn
 
@@ -12,10 +12,6 @@ load_dotenv()
 
 app = FastAPI()
 
-if __name__ == "__main__":
-    # Leer el puerto desde la variable de entorno, con un valor por defecto (e.g., 8000)
-    port = int(os.getenv("PORT", 8000))
-    uvicorn.run(app, host="0.0.0.0", port=port)
 
 # borrar la base de datos y volverla a crear
 # @app.on_event("startup")
@@ -26,7 +22,7 @@ if __name__ == "__main__":
 @app.get("/")
 def read_root():
     create_db_and_tables()
-    return {"msg": "Welcome to the Hero API!"}
+    return {"msg": "Welcome to team celular's API!"}
 
 
 @app.post("/signup/")
@@ -76,13 +72,15 @@ def delete_user(user_id: int, session: SessionDep):
     return {"ok": True}
 
 @app.put("/users/{user_id}")
-def update_user(user_id: int, user: UserCreate, session: SessionDep) -> UserOut:
+def update_user(user_id: int, user: UserUpdate, session: SessionDep) -> UserOut:
     db_user = session.get(User, user_id)
     if not db_user:
         raise HTTPException(status_code=404, detail="User not found")
+    
     data = user.model_dump(exclude_unset=True)
     for key, value in data.items():
         setattr(db_user, key, value)
+    
     session.add(db_user)
     session.commit()
     session.refresh(db_user)

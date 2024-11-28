@@ -5,7 +5,7 @@ from datetime import datetime
 
 # crear clase de sqlmodel para usuarios
 class User(SQLModel, table=True):
-    id: Optional[int] = Field(default=None, primary_key=True)
+    id: int|None = Field(default=None, primary_key=True)
     dni: str = Field( index=True, nullable=False , unique=True)
     first_name: str = Field(index=True, nullable=False)
     last_name: str = Field(index=True, nullable=False)
@@ -41,10 +41,10 @@ class Token(BaseModel):
 
 # crear clase de pydantic para actualizar usuarios
 class UserUpdate(BaseModel):
-    first_name: str = constr(min_length=3, max_length=50)
-    last_name: str = constr(min_length=3, max_length=50)
-    email: EmailStr
-    phone: str 
+    first_name: Optional[str] = None | constr(min_length=3, max_length=50)
+    last_name: Optional[str] = None| constr(min_length=3, max_length=50)
+    email: Optional[EmailStr] = None
+    phone: Optional[str] = None
 
 # crear clase de pydantic para devolver informacion de usuarios
 class UserOut(BaseModel):
