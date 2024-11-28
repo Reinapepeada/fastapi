@@ -5,7 +5,7 @@ import os
 from dotenv import load_dotenv
 load_dotenv()
 # sqlite_file_name = "database.db"
-postgress_railway = os.getenv("DATABASE_PUBLIC_URL")
+postgress_railway = os.getenv("DATABASE_URL")
 
 
 
