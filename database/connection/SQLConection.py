@@ -1,14 +1,12 @@
+
 from sqlmodel import Session, SQLModel, create_engine
 from typing import Annotated
 from fastapi import Depends
 import os
 from dotenv import load_dotenv
+
 load_dotenv()
-# sqlite_file_name = "database.db"
-postgress_railway = os.getenv("DATABASE_URL")
-
-
-
+postgress_railway = os.getenv("RAILWAY_ENVIRONMENT")
 
 
 # connect_args = {"check_same_thread": False}
@@ -19,6 +17,9 @@ engine = create_engine(postgress_railway)
 def create_db_and_tables():
     SQLModel.metadata.create_all(engine)
 
+# elimnar tabla de user
+def drop_db_and_tables():
+    SQLModel.metadata.drop_all(engine)
 
 def get_session():
     with Session(engine) as session:
