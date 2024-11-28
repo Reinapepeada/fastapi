@@ -1,9 +1,11 @@
 from sqlmodel import Session, SQLModel, create_engine
 from typing import Annotated
 from fastapi import Depends
-
+import os
+from dotenv import load_dotenv
+load_dotenv()
 # sqlite_file_name = "database.db"
-postgress_railway = f"postgresql://:@fastapi.railway.internal:5432/"
+postgress_railway = os.getenv("DATABASE_PUBLIC_URL")
 
 
 
