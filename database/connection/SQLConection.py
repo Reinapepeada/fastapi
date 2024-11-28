@@ -6,7 +6,7 @@ import os
 from dotenv import load_dotenv
 
 load_dotenv()
-postgress_railway = os.getenv("RAILWAY_ENVIRONMENT")
+postgress_railway = os.getenv("DATABASE_URL")
 
 
 # connect_args = {"check_same_thread": False}
