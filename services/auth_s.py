@@ -126,3 +126,15 @@ def send_email_forgot_password(email: str):
         print("Email sent successfully")
     except Exception as e:
         print(f"Error sending email: {e}")
+
+
+# comprobar que el token sea válido y que no haya expirado para resetear la contraseña
+def verify_token(token: str):
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        email: str = payload.get("sub")
+        if email is None:
+            raise JWTError
+        return email
+    except JWTError:
+        return None

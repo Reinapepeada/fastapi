@@ -20,6 +20,7 @@ from controllers.user_c import (
     delete_user,
     login_user,
     forgot_password_email,
+    reset_password_email
 )
 
 router = APIRouter()
@@ -69,3 +70,7 @@ def remove_user(
 @router.post("/forgot-password")
 def forgot_password(user: UserForgotPassword, session: SessionDep):
     return forgot_password_email(email=user.email, session=session)
+
+@router.post("/reset-password")
+def reset_password(bearer_token: Annotated[str | None, Header()], reset: UserResetPassword, session: SessionDep):
+    return reset_password_email(token=bearer_token,new_password=reset.password, session=session)

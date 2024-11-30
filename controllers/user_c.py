@@ -8,7 +8,8 @@ from services.user_s import (
     update_existing_user,
     remove_user_by_id,
     authenticate_user,
-    verify_user_permissions    
+    verify_user_permissions,
+    change_password
 )
 from services import auth_s
 
@@ -69,4 +70,24 @@ def forgot_password_email(email: str, session: Session):
         raise HTTPException(status_code=500, detail="Could not send email")  
     
     return {"msg": "Email sent"}
+
+def reset_password_email(token: str, new_password: str, session: Session):
+    try:
+        sub= auth_s.verify_token(token)
+    except Exception:
+        raise HTTPException(status_code=400, detail="Invalid token")
+    print(sub)
+    user = get_all_users(session=session, email=sub)
+    print(user[0])
+    print("/n")
+    print(new_password)
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    try:
+        change_password(user_id=user[0].id, new_password=new_password, session=session)
+    except Exception:
+        raise HTTPException(status_code=500, detail="Could not change password")
+
+    return {"msg": "Password changed"}
+        
     

@@ -65,7 +65,6 @@ class UserForgotPassword(BaseModel):
     email: EmailStr
 
 class UserResetPassword(BaseModel):
-    token: str
     password: str = constr(min_length=8)
 
 
