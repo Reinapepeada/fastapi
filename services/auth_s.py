@@ -15,6 +15,18 @@ SECRET_KEY = os.getenv("SECRET_KEY")  # Cambia esto por una clave secreta segura
 ALGORITHM = os.getenv("ALGORITHM")
 ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", 30))
 
+# Función para verificar permisos del usuario que hace la petición
+def get_current_user(token: str = None):
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        email: str = payload.get("sub")
+        role: str = payload.get("role")
+        if email is None or role is None:
+            raise JWTError
+        return email, role
+    except JWTError:
+        return None, None
+
 
 def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
     to_encode = data.copy()

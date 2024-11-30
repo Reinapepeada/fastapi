@@ -1,6 +1,7 @@
 from sqlalchemy.orm import Session
 from database.models.SQLModels import UserCreate, UserUpdate, User
 from services import auth_s
+from fastapi import HTTPException
 
 def get_all_users(session: Session, email: str = None, offset: int = 0, limit: int = 100):
     query = session.query(User)
@@ -44,6 +45,21 @@ def update_existing_user(user_id: int, user: UserUpdate, session: Session):
     session.commit()
     session.refresh(db_user)
     return db_user
+
+# verificar que al actualizar o eliminar un usuario, el usuario que hace la petición sea un administrador o el mismo usuario
+def verify_user_permissions(token: str, user_id: int, session: Session):
+    user_email, user_role = auth_s.get_current_user(token)
+    if not user_email:
+        raise HTTPException(status_code=403, detail="Could not validate credentials")
+    if user_role == "admin":
+        return True
+    user = get_user_by_id(user_id=user_id, session=session)
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    if user.email == user_email:
+        return True
+    raise HTTPException(status_code=403, detail="Not authorized to perform this action")
+
 
 def remove_user_by_id(user_id: int, session: Session):
     user = session.query(User).filter(User.id == user_id).first()

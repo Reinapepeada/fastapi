@@ -1,4 +1,5 @@
-from fastapi import HTTPException
+from typing import Annotated
+from fastapi import HTTPException, Header
 from sqlalchemy.orm import Session
 from services.user_s import (
     get_all_users,
@@ -7,10 +8,11 @@ from services.user_s import (
     update_existing_user,
     remove_user_by_id,
     authenticate_user,
+    verify_user_permissions
 )
 
 from services.auth_s import create_access_token
-from database.models.SQLModels import UserCreate, UserLogin, UserUpdate,Token
+from database.models.SQLModels import UserCreate, UserLogin, UserUpdate, Token
 
 def create_user(user_info: UserCreate, session: Session):
     existing_user = get_all_users(session=session, email=user_info.email)
@@ -20,7 +22,6 @@ def create_user(user_info: UserCreate, session: Session):
     return create_new_user(user=user_info, session=session)
 
 def login_user(user_info: UserLogin, session: Session):
-    
     user = authenticate_user(session=session, email=user_info.email, password=user_info.password)
     if not user:
         raise HTTPException(status_code=400, detail="Incorrect email or password")
@@ -38,13 +39,19 @@ def read_user(user_id: int, session: Session):
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     return user
-def update_user(user_id: int, user: UserUpdate, session: Session):
+
+def update_user(bearer_token: str, user_id: int, user: UserUpdate, session: Session):
+    verify_user_permissions(token=bearer_token, user_id=user_id, session=session)
+    
     existing_user = get_user_by_id(user_id=user_id, session=session)
     if not existing_user:
         raise HTTPException(status_code=404, detail="User not found")
+    
     return update_existing_user(user_id=user_id, user=user, session=session)
 
-def delete_user(user_id: int, session: Session):
+def delete_user(bearer_token: str, user_id: int, session: Session):
+    verify_user_permissions(token=bearer_token, user_id=user_id, session=session)
+    
     user = get_user_by_id(user_id=user_id, session=session)
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
