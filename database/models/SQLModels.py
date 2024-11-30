@@ -61,6 +61,13 @@ class UserOut(BaseModel):
 class UserDelete(BaseModel):
     dni: str
 
+class UserForgotPassword(BaseModel):
+    email: EmailStr
+
+class UserResetPassword(BaseModel):
+    token: str
+    password: str = constr(min_length=8)
+
 
 class Branch(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)

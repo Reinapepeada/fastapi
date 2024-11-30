@@ -51,14 +51,18 @@ def verify_user_permissions(token: str, user_id: int, session: Session):
     user_email, user_role = auth_s.get_current_user(token)
     if not user_email:
         raise HTTPException(status_code=403, detail="Could not validate credentials")
+    
     if user_role == "admin":
         return True
+    
     user = get_user_by_id(user_id=user_id, session=session)
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
+    
     if user.email == user_email:
         return True
-    raise HTTPException(status_code=403, detail="Not authorized to perform this action")
+    
+    return False
 
 
 def remove_user_by_id(user_id: int, session: Session):

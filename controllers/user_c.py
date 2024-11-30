@@ -1,5 +1,5 @@
-from typing import Annotated
-from fastapi import HTTPException, Header
+
+from fastapi import HTTPException
 from sqlalchemy.orm import Session
 from services.user_s import (
     get_all_users,
@@ -8,8 +8,9 @@ from services.user_s import (
     update_existing_user,
     remove_user_by_id,
     authenticate_user,
-    verify_user_permissions
+    verify_user_permissions    
 )
+from services import auth_s
 
 from services.auth_s import create_access_token
 from database.models.SQLModels import UserCreate, UserLogin, UserUpdate, Token
@@ -56,3 +57,16 @@ def delete_user(bearer_token: str, user_id: int, session: Session):
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     return remove_user_by_id(user_id=user_id, session=session)
+
+def forgot_password_email(email: str, session: Session):
+    user_db=get_all_users(session=session, email=email)
+    if not user_db:
+        raise HTTPException(status_code=404, detail="User not found")
+    # enviar email
+    try:
+        auth_s.send_email_forgot_password(email=email)
+    except Exception:
+        raise HTTPException(status_code=500, detail="Could not send email")  
+    
+    return {"msg": "Email sent"}
+    
