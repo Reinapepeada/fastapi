@@ -1,3 +1,5 @@
 fastapi[standard]
 sqlmodel
 psycopg2
+python-jose
+passlib[bcrypt]
