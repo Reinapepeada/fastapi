@@ -36,16 +36,27 @@ fastapi run main.py
 <!-- incicio rapido -->
  py -m .venv venv ;.venv\Scripts\activate;pip install -r requirements.txt;fastapi dev main.py
 
-# FastAPI Example
+```
+# Migrar base de datos a postgress cuando se cambia algo en el modelo
+##Inicializar Alembic: En el directorio raíz de tu proyecto, ejecuta:
+alembic init alembic
 
-This example starts up a [FastAPI](https://fastapi.tiangolo.com/) server.
+Esto creará un directorio alembic y un archivo alembic.ini.
 
-[![Deploy on Railway](https://railway.app/button.svg)](https://railway.app/template/-NvLj4?referralCode=CRJ8FE)
-## ✨ Features
+## Configurar Alembic: Configura tu varibal de entorno de DATABASE_URL
+DATABASE_URL = "postgresql://user:password@localhost/dbname"
 
-- FastAPI
-- [Hypercorn](https://hypercorn.readthedocs.io/)
-- Python 3
+
+## Crear una migración: Cada vez que realices cambios en tus modelos, crea una nueva migración:
+alembic revision --autogenerate -m "Descripción de los cambios"
+
+Esto generará un nuevo archivo de migración en el directorio alembic/versions.
+
+## Aplicar la migración: Para aplicar la migración a la base de datos, ejecuta:
+alembic upgrade head
+
+Esto aplicará la migración a la base de datos y actualizará la tabla alembic_version para reflejar la migración aplicada.
+
 
 ## 💁‍♀️ How to use
 
@@ -56,3 +67,5 @@ This example starts up a [FastAPI](https://fastapi.tiangolo.com/) server.
 
 - To learn about how to use FastAPI with most of its features, you can visit the [FastAPI Documentation](https://fastapi.tiangolo.com/tutorial/)
 - To learn about Hypercorn and how to configure it, read their [Documentation](https://hypercorn.readthedocs.io/)
+
+

@@ -13,10 +13,14 @@ app = FastAPI()
 
 app.include_router(user_r.router, tags=["Users"], prefix="/users")
 # borrar la base de datos y volverla a crear
-# @app.on_event("startup")
-# def on_startup():
-#     drop_db_and_tables()
-#     create_db_and_tables()
+@app.on_event("startup")
+def on_startup():
+    print("Starting up")
+    print(SQLModel.metadata)
+    drop_db_and_tables()
+    # create_db_and_tables()
+
+
 
 @app.get("/")
 def read_root():
