@@ -7,6 +7,10 @@ from database.models.product import Product
 
 router = APIRouter()
 
-router.get("/hughjgjkh")
-def get_products():
-    return {"hola": "hola"}
+@router.get("/")
+def read_root():
+    return {"msg": "Welcome to team celular product's API!"}
+
+@router.get("/product")
+def get_product():
+    return {"product": "product"}

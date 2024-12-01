@@ -20,6 +20,13 @@ class User(SQLModel, table=True):
     orders: List["Order"] = Relationship(back_populates="user")
     audits: List["Audit"] = Relationship(back_populates="admin")
 
+class Audit(SQLModel, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True)
+    admin_id: int = Field(foreign_key="user.id", nullable=False)
+    action: str = Field(nullable=False)
+    created_at: datetime = Field(default_factory=datetime.now)
+
+    admin: Optional["User"] = Relationship(back_populates="audits")
 # crear clase de pydantic para registro de usuarios
 class UserCreate(BaseModel):
     first_name: str = constr(min_length=3, max_length=50)
@@ -67,11 +74,3 @@ class UserForgotPassword(BaseModel):
 
 class UserResetPassword(BaseModel):
     password: str = constr(min_length=8)
-
-class Audit(SQLModel, table=True):
-    id: Optional[int] = Field(default=None, primary_key=True)
-    admin_id: int = Field(foreign_key="user.id", nullable=False)
-    action: str = Field(nullable=False)
-    created_at: datetime = Field(default_factory=datetime.now)
-
-    admin: Optional["User"] = Relationship(back_populates="audits")
