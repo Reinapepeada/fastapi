@@ -25,12 +25,3 @@ def get_session():
 
 
 SessionDep = Annotated[Session, Depends(get_session)]
-
-# elimnar tabla de user
-def drop_db_and_tables():
-    SQLModel.metadata.drop_all(engine)
-    # dropea la tabla de hero, team
-    with Session(engine) as session:
-        session.exec(text('DROP TABLE IF EXISTS alembic_version'))
-        # session.exec(text('DROP TABLE IF EXISTS team'))
-        session.commit()

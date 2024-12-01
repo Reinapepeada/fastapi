@@ -14,7 +14,10 @@ from alembic import context
 from sqlmodel import SQLModel
 
 # importo mis modelos -necesiarios para que alembic pueda hacer las migraciones y sqlmodel pueda identificar las tablas en el meta
-from database.models.SQLModels import User,Product,ProductImage,ProductVariant,Discount,Order,OrderItem,Category,Provider,Branch
+from database.models.user import User
+from database.models.product import Product,ProductImage,ProductVariant,Discount,Category,Provider,Branch
+from database.models.order import Order,OrderItem
+from database import models
 
 # Obtener la URL desde la variable de entorno
 database_url = os.getenv("DATABASE_URL")

@@ -14,7 +14,7 @@ from services.user_s import (
 from services import auth_s
 
 from services.auth_s import create_access_token
-from database.models.SQLModels import UserCreate, UserLogin, UserUpdate, Token
+from database.models.user import UserCreate, UserLogin, UserUpdate, Token
 
 def create_user(user_info: UserCreate, session: Session):
     existing_user = get_all_users(session=session, email=user_info.email)

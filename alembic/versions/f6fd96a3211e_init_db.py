@@ -1,8 +1,8 @@
 """init db
 
-Revision ID: 093e199c4a85
+Revision ID: f6fd96a3211e
 Revises: 
-Create Date: 2024-11-30 20:10:45.432572
+Create Date: 2024-11-30 21:16:05.420815
 
 """
 from typing import Sequence, Union
@@ -12,7 +12,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = '093e199c4a85'
+revision: str = 'f6fd96a3211e'
 down_revision: Union[str, None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -103,8 +103,8 @@ def upgrade() -> None:
     op.create_index(op.f('ix_product_name'), 'product', ['name'], unique=False)
     op.create_table('discount',
     sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('name', sa.String(), nullable=False),
-    sa.Column('discount_type', sa.String(), nullable=False),
+    sa.Column('name', sa.String, nullable=False),
+    sa.Column('discount_type', sa.String, nullable=False),
     sa.Column('value', sa.Float(), nullable=False),
     sa.Column('start_date', sa.DateTime(), nullable=True),
     sa.Column('end_date', sa.DateTime(), nullable=True),
@@ -138,7 +138,6 @@ def upgrade() -> None:
     sa.Column('product_id', sa.Integer(), nullable=False),
     sa.Column('sku', sa.String, nullable=False),
     sa.Column('color', sa.String, nullable=True),
-    sa.Column('color2', sa.String, nullable=True),
     sa.Column('size', sa.String, nullable=True),
     sa.Column('branch_id', sa.Integer(), nullable=True),
     sa.Column('stock', sa.Integer(), nullable=False),

@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Session
-from database.models.SQLModels import UserCreate, UserUpdate, User
+from database.models.user import UserCreate, UserUpdate, User
 from services import auth_s
 from fastapi import HTTPException
 

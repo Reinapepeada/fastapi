@@ -2,7 +2,7 @@ from fastapi import APIRouter, Header
 from typing import Annotated, List
 from fastapi import Query
 from database.connection.SQLConection import SessionDep
-from database.models.SQLModels import (
+from database.models.user import (
     Token,
     User,
     UserCreate,
@@ -24,7 +24,6 @@ from controllers.user_c import (
 )
 
 router = APIRouter()
-
 
 @router.get("/")
 def get_users(
