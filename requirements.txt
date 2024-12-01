@@ -4,3 +4,5 @@ psycopg2
 python-jose
 passlib[bcrypt]
 alembic
+python-barcode 
+qrcode[pil]

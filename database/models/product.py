@@ -29,6 +29,7 @@ class Provider(SQLModel, table=True):
     contact_info: Optional[str]
     created_at: datetime = Field(default_factory=datetime.now)
 
+    purchases: List["Purchase"] = Relationship(back_populates="provider")
     products: List["Product"] = Relationship(back_populates="provider")
 
 
@@ -54,7 +55,7 @@ class Product(SQLModel, table=True):
     variants: List["ProductVariant"] = Relationship(
         back_populates="product", cascade_delete=True  )
     discounts: List["Discount"] = Relationship(back_populates="product")
-
+    purchase_items: List["PurchaseItem"] = Relationship(back_populates="product")
 
 class ProductVariant(SQLModel, table=True):  # Variantes de productos
     id: Optional[int] = Field(default=None, primary_key=True)
@@ -68,7 +69,7 @@ class ProductVariant(SQLModel, table=True):  # Variantes de productos
     branch: Optional["Branch"] = Relationship(back_populates="products")
     order_items: List["OrderItem"] = Relationship(back_populates="products")
     product: Optional["Product"] = Relationship(back_populates="variants")
-    
+    purchase_items: List["PurchaseItem"] = Relationship(back_populates="productvariant")
 
 
 class Discount(SQLModel, table=True):  # Descuentos dinámicos
@@ -92,3 +93,127 @@ class ProductImage(SQLModel, table=True):
     created_at: datetime = Field(default_factory=datetime.now)
 
     product: Optional["Product"] = Relationship(back_populates="images")
+
+
+# schemas de pydantic para productos
+class ProductVariantCreate(BaseModel):
+    product_id: int
+    sku: str
+    color: Optional[str]
+    size: Optional[str]
+    branch_id: Optional[int]
+    stock: int
+
+    class Config:
+        orm_mode = True
+
+class ProductVariantUpdate(BaseModel):
+    sku: Optional[str]
+    color: Optional[str]
+    size: Optional[str]
+    branch_id: Optional[int]
+    stock: Optional[int]
+
+class ProductVariantOut(BaseModel):
+    product_id: int
+    sku: str
+    color: Optional[str]
+    size: Optional[str]
+    branch_id: Optional[int]
+    stock: int
+
+    class Config:
+        orm_mode = True
+
+class ProductCreate(BaseModel):
+    serial_number: str
+    name: str
+    description: Optional[str]
+    brand: Optional[str]
+    warranty_time: Optional[int]
+    cost: float
+    wholesale_price: float
+    retail_price: float
+    status: Literal['active', 'inactive', 'discontinued']
+    category_id: Optional[int]
+    provider_id: Optional[int]
+    images: Optional[List[str]]
+    ProductVariant: Optional[List[ProductVariantCreate]]
+
+
+class ProductUpdate(BaseModel):
+    serial_number: Optional[str]
+    name: Optional[str]
+    description: Optional[str]
+    brand: Optional[str]
+    warranty_time: Optional[int]
+    cost: Optional[float]
+    wholesale_price: Optional[float]
+    retail_price: Optional[float]
+    status: Optional[Literal['active', 'inactive', 'discontinued']]
+    category_id: Optional[int]
+    provider_id: Optional[int]
+    images: Optional[List[str]]
+
+class ProductOut(BaseModel):
+    serial_number: str
+    name: str
+    description: Optional[str]
+    brand: Optional[str]
+    warranty_time: Optional[int]
+    cost: float
+    wholesale_price: float
+    retail_price: float
+    status: Literal['active', 'inactive', 'discontinued']
+    category_id: Optional[int]
+    provider_id: Optional[int]
+    images: Optional[List[str]]
+    created_at: datetime
+    updated_at: datetime
+
+    class Config:
+        orm_mode = True
+
+
+class CategoryCreate(BaseModel):
+    name: str
+    description: Optional[str]
+
+    class Config:
+        orm_mode = True
+
+class CategoryUpdate(BaseModel):
+    name: Optional[str]
+    description: Optional[str]
+
+class CategoryOut(BaseModel):
+    id: int
+    name: str
+    description: Optional[str]
+    created_at: datetime
+
+    class Config:
+        orm_mode = True
+
+
+class ProviderCreate(BaseModel):
+    name: str
+    contact_info: Optional[str]
+
+    class Config:
+        orm_mode = True
+
+class ProviderUpdate(BaseModel):
+    name: Optional[str]
+    contact_info: Optional[str]
+
+class ProviderOut(BaseModel):
+    id: int
+    name: str
+    contact_info: Optional[str]
+    created_at: datetime
+
+    class Config:
+        orm_mode = True
+
+

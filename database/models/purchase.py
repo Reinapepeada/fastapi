@@ -21,6 +21,6 @@ class PurchaseItem(SQLModel, table=True):
     cost: float = Field(nullable=False)
     total_cost: float = Field(nullable=False)
 
+    product: Optional["Product"] = Relationship(back_populates="purchase_items")
+    productvariant: Optional["ProductVariant"] = Relationship(back_populates="purchase_items")
     purchase: Optional["Purchase"] = Relationship(back_populates="items")
-    product: Optional["Product"] = Relationship()
-    products: Optional["ProductVariant"] = Relationship(back_populates="purchase_items")
