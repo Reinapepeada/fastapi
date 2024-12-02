@@ -8,7 +8,8 @@ from database.models.product import (
     BrandCreate,
     BrandOut,
     CategoryCreate,
-    CategoryOut, 
+    CategoryOut,
+    CategoryUpdate, 
     ProductCreate, 
     ProductUpdate, 
     ProductOut, 
@@ -18,8 +19,17 @@ from database.models.product import (
     ProviderOut,
     ProviderUpdate 
     )
-from controllers.product_c import create_branch, create_brand, create_category, create_product, create_provider, delete_branch, delete_brand, delete_product, delete_product_variant, get_branches, get_brands, get_categories_all, get_provider, update_branch, update_brand, update_product, update_product_variant
-
+from controllers.product_c import (
+    create_branch,
+    create_brand,
+    create_category, 
+    create_product, 
+    create_provider, 
+    delete_branch, 
+    delete_brand, 
+    delete_category, 
+    delete_product, delete_product_variant, delete_provider, get_branches, get_brands, get_categories, get_providers, update_branch, update_brand, update_category, update_product, update_product_variant, update_provider
+)
 
 router = APIRouter()
 
@@ -27,11 +37,13 @@ router = APIRouter()
 def read_root():
     return {"msg": "Welcome to team celular product's API!"}
 
+# product endpoints
+
 @router.post("/create")
 def create_product_and_variants_endp(
     product: ProductCreate,
     session: SessionDep = SessionDep
-):
+)-> ProductOut:
     return create_product(product, session)
 
 @router.put("/update")
@@ -42,6 +54,17 @@ def update_product_endp(
 )-> ProductOut:
     return update_product(product_id, product, session)
 
+@router.delete("/delete")
+def delete_product_endp(
+    product_id: int,
+    session: SessionDep = SessionDep
+):
+    return delete_product(product_id, session)
+
+
+# endpoints for product variants
+
+
 @router.put("/update/variant")
 def update_product_variant_endp(
     variant_id: int,
@@ -50,46 +73,14 @@ def update_product_variant_endp(
 )-> ProductVariantOut:
     return update_product_variant(variant_id, variant, session)
 
-@router.delete("/delete")
-def delete_product_endp(
-    product_id: int,
-    session: SessionDep = SessionDep
-):
-    return delete_product(product_id, session)
 
 @router.delete("/delete/variant")
 def delete_product_variant_endp(
     variant_id: int,
-    session: SessionDep = SessionDep
-):
+    session: SessionDep = SessionDep):
     return delete_product_variant(variant_id, session)
 
 
-@router.post("/create/category")
-def create_category_endp(
-    category: CategoryCreate,
-    session: SessionDep = SessionDep
-)-> CategoryOut:
-    return create_category(category, session)
-
-@router.get("/get/category")
-def get_category_endp(
-    session: SessionDep = SessionDep
-)-> List[CategoryOut]:
-    return get_categories_all(session)
-
-@router.post("/create/provider")
-def create_provider_endp(
-    provider: ProviderCreate,
-    session: SessionDep = SessionDep
-)-> ProviderOut:
-    return create_provider(provider, session)
-
-@router.get("/get/provider")
-def get_provider_endp(
-    session: SessionDep = SessionDep
-)-> List[ProviderOut]:
-    return get_provider(session)
 
 # enpoints for branches
 
@@ -150,3 +141,63 @@ def update_brand_endp(
     session: SessionDep = SessionDep
 )-> BrandOut:
     return update_brand(brand_id, brand, session)
+
+# endpoints for providers
+
+@router.post("/create/provider")
+def create_provider_endp(
+    provider: ProviderCreate,
+    session: SessionDep = SessionDep
+)-> ProviderOut:
+    return create_provider(provider, session)
+
+@router.get("/get/provider")
+def get_provider_endp(
+    session: SessionDep = SessionDep
+)-> List[ProviderOut]:
+    return get_providers(session)
+
+@router.delete("/delete/provider")
+def delete_provider_endp(
+    provider_id: int,
+    session: SessionDep = SessionDep
+):
+    return delete_provider(provider_id, session)
+
+@router.put("/update/provider")
+def update_provider_endp(
+    provider_id: int,
+    provider: ProviderUpdate,
+    session: SessionDep = SessionDep
+)-> ProviderOut:
+    return update_provider(provider_id, provider, session)
+
+# endpoints for category
+
+@router.post("/create/category")
+def create_categories_endp(
+    category: CategoryCreate,
+    session: SessionDep = SessionDep
+)-> CategoryOut:
+    return create_category(category, session)
+
+@router.get("/get/category")
+def get_category_endp(
+    session: SessionDep = SessionDep
+)-> List[CategoryOut]:
+    return get_categories(session)
+
+@router.delete("/delete/category")
+def delete_category_endp(
+    category_id: int,
+    session: SessionDep = SessionDep
+):
+    return delete_category(category_id, session)
+
+@router.put("/update/category")
+def update_category_endp(
+    category_id: int,
+    category: CategoryUpdate,
+    session: SessionDep = SessionDep
+)-> CategoryOut:
+    return update_category(category_id, category, session)

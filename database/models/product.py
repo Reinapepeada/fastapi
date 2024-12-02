@@ -59,25 +59,27 @@ class Product(SQLModel, table=True):
     brand: Optional["Brand"] = Relationship(back_populates="products")
     category: Optional["Category"] = Relationship(back_populates="products")
     provider: Optional["Provider"] = Relationship(back_populates="products")
-    images: List["ProductImage"] = Relationship(back_populates="product")
-    variants: List["ProductVariant"] = Relationship(back_populates="product")
+    images: List["ProductImage"] = Relationship(back_populates="product",cascade_delete=True)
+    variants: List["ProductVariant"] = Relationship(back_populates="product",cascade_delete=True)
     discounts: List["Discount"] = Relationship(back_populates="product")
     purchase_items: List["PurchaseItem"] = Relationship(back_populates="product")
 
 class ProductVariant(SQLModel, table=True):  # Variantes de productos
     id: int|None = Field(default=None, primary_key=True)
     product_id: int = Field(foreign_key="product.id", nullable=False)
-    sku: str = Field(index=True, nullable=False)  # Código único de variante
+    sku: str = Field(index=True, nullable=False,unique=True)  # Código único de variante
     color: str|None =Field(nullable=True,default=None)
     size: str|None=Field(nullable=True,default=None)
     branch_id: int|None = Field(default=None, foreign_key="branch.id")
     stock: int = Field(default=0)  # Cantidad en inventario
+    created_at: datetime = Field(default_factory=datetime.now)
+    updated_at: datetime = Field(default_factory=datetime.now)
+
     product: Optional["Product"] = Relationship(back_populates="variants")
     branch: Optional["Branch"] = Relationship(back_populates="products")
     order_items: List["OrderItem"] = Relationship(back_populates="products")
-    product: Optional["Product"] = Relationship(back_populates="variants")
     purchase_items: List["PurchaseItem"] = Relationship(back_populates="productvariant")
-
+    
 
 class Discount(SQLModel, table=True):  # Descuentos dinámicos
     id: int|None = Field(default=None, primary_key=True)
@@ -114,19 +116,21 @@ class ProductVariantCreate(BaseModel):
         from_attributes = True
 
 class ProductVariantUpdate(BaseModel):
-    sku: str|None
     color: str|None
     size: str|None
     branch_id: int|None
     stock: int|None
 
 class ProductVariantOut(BaseModel):
+    id: int
     product_id: int
     sku: str
     color: str|None
     size: str|None
     branch_id: int|None
     stock: int
+    created_at: datetime
+    updated_at: datetime
 
     class ConfigDict:
         from_attributes = True
@@ -135,7 +139,7 @@ class ProductCreate(BaseModel):
     serial_number: str
     name: str
     description: str|None
-    brand: int|None
+    brand_id: int|None
     warranty_time: int|None
     cost: float
     wholesale_price: float
@@ -144,29 +148,32 @@ class ProductCreate(BaseModel):
     category_id: int|None
     provider_id: int|None
     images: Optional[List[str]]
-    ProductVariant: Optional[List[ProductVariantCreate]]
+    variants: Optional[List[ProductVariantCreate]]
 
 
 class ProductUpdate(BaseModel):
-    serial_number: str|None
-    name: str|None
-    description: str|None
-    brand: int|None
-    warranty_time: int|None
-    cost: Optional[float]
-    wholesale_price: Optional[float]
-    retail_price: Optional[float]
-    status: Optional[Literal['active', 'inactive', 'discontinued']]
-    category_id: int|None
-    provider_id: int|None
-    images: Optional[List[str]]
+    serial_number: Optional[str] = None
+    name: Optional[str] = None
+    description: Optional[str] = None
+    brand_id: Optional[int] = None
+    warranty_time: Optional[int] = None
+    cost: Optional[float] = None
+    wholesale_price: Optional[float] = None
+    retail_price: Optional[float] = None
+    status: Optional[Literal['active', 'inactive', 'discontinued']] = None
+    category_id: Optional[int] = None
+    provider_id: Optional[int] = None
+    images: Optional[List[str]] = None
+
+    class ConfigDict:
+        from_attributes = True
     
 
 class ProductOut(BaseModel):
     serial_number: str
     name: str
     description: str|None
-    brand: str|None
+    brand_id: int|None
     warranty_time: int|None
     cost: float
     wholesale_price: float
@@ -175,9 +182,7 @@ class ProductOut(BaseModel):
     category_id: int|None
     provider_id: int|None
     images: Optional[List[str]]
-    ProductVariant: Optional[List[ProductVariantCreate]]
-    created_at: datetime
-    updated_at: datetime
+    variants: Optional[List[ProductVariantCreate]]
 
     class ConfigDict:
         from_attributes = True
@@ -191,8 +196,8 @@ class CategoryCreate(BaseModel):
         from_attributes = True
 
 class CategoryUpdate(BaseModel):
-    name: str|None
-    description: str|None
+    name: str|None=None
+    description: str|None=None
 
 class CategoryOut(BaseModel):
     id: int
@@ -212,8 +217,8 @@ class ProviderCreate(BaseModel):
         from_attributes = True
 
 class ProviderUpdate(BaseModel):
-    name: str|None
-    contact_info: str|None
+    name: str|None=None
+    contact_info: str|None=None
 
 class ProviderOut(BaseModel):
     id: int
@@ -233,8 +238,8 @@ class BranchCreate(BaseModel):
         from_attributes = True
 
 class BranchUpdate(BaseModel):
-    name: str|None
-    location: str|None
+    name: str|None=None
+    location: str|None=None
 
 class BranchOut(BaseModel):
     id: int

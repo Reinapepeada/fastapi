@@ -12,6 +12,7 @@ def create_brand_db(brand: BrandCreate, session):
     try:
         db_brand = Brand(
             name=brand.name,
+            
         )
         session.add(db_brand)
         session.commit()
