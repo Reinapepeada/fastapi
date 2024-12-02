@@ -7,6 +7,7 @@ from barcode import Code128
 from barcode.writer import ImageWriter
 import qrcode
 from services.branch_s import ensure_branch_exists
+from services.brand_s import ensure_brand_exists
 
 
 def ensure_category_exists(category_id: int, session):
@@ -22,11 +23,17 @@ def ensure_provider_exists(provider_id: int, session):
     return provider
 
 
-def ensure_product_exists(product_id: int, session):
-    product = session.exec(select(Product).where(Product.id == product_id)).first()
+def ensure_product_exists(product_serial: int, session):
+    product = session.exec(select(Product).where(Product.serial_number == product_serial)).first()
     if not product:
-        raise ValueError(f"Product with id {product_id} does not exist")
+        raise ValueError(f"Product with id {product_serial} does not exist")
     return product
+
+def product_exists(product_serial: int, session):
+    product = session.exec(select(Product).where(Product.serial_number== product_serial)).first()
+    if not product:
+        return False
+    return True
 
 def ensure_product_variant_exists(variant_id: int, session):
     variant = session.exec(select(ProductVariant).where(ProductVariant.id == variant_id)).first()
@@ -39,18 +46,19 @@ def generate_sku(product_name: str, category_id: int, provider_id: int) -> str:
     sku = f"{product_name[:4].upper()}-{category_id:02d}-{provider_id:02d}-{unique_id}"
     return sku
 
+
 def create_product_and_variants(product, session, create_product_if_not_exists=True):
     """Crea un producto y sus variantes, o solo agrega variantes si el producto ya existe."""
     try:
         # Validar categoría y proveedor
-        category = ensure_category_exists(product.category_id, session)
-        provider = ensure_provider_exists(product.provider_id, session)
+        ensure_category_exists(product.category_id, session)
+        ensure_provider_exists(product.provider_id, session)
+        ensure_brand_exists(product.brand_id, session)
 
         # Intentar recuperar o crear el producto
-        db_product = None
+        
         if create_product_if_not_exists:
-            db_product = ensure_product_exists(product.id, session)
-            if not db_product:
+            if not product_exists(product.serial_number, session):
                 db_product = Product(
                     name=product.name,
                     description=product.description,
@@ -68,10 +76,11 @@ def create_product_and_variants(product, session, create_product_if_not_exists=T
                 session.commit()
                 session.refresh(db_product)
         else:
-            db_product = ensure_product_exists(product.id, session)
+            db_product = product_exists(product.serial_number, session)
             if not db_product:
                 raise ValueError("Product does not exist, and `create_product_if_not_exists` is False.")
 
+        db_product = ensure_product_exists(product.serial_number, session)
         # Crear variantes
         for variant in product.ProductVariant:
             ensure_branch_exists(variant.branch_id, session)
@@ -95,15 +104,8 @@ def create_product_and_variants(product, session, create_product_if_not_exists=T
         session.rollback()
         raise e
 
-    return db_product
+    return product
 
-# dinamyc update products by parameters passed
-# db_user = session.query(User).filter(User.id == user_id).first()
-#     for key, value in user.model_dump(exclude_unset=True).items():
-#         setattr(db_user, key, value)
-#     session.commit()
-#     session.refresh(db_user)
-#     return db_user
 def update_product_db(product_id: int, product: ProductUpdate, session):
     try:
         ensure_product_exists(product_id, session)

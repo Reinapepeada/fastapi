@@ -5,6 +5,8 @@ from database.connection.SQLConection import SessionDep
 from database.models.product import (
     BranchCreate,
     BranchOut,
+    BrandCreate,
+    BrandOut,
     CategoryCreate,
     CategoryOut, 
     ProductCreate, 
@@ -16,7 +18,7 @@ from database.models.product import (
     ProviderOut,
     ProviderUpdate 
     )
-from controllers.product_c import create_category, create_product, create_provider, delete_branch, delete_product, delete_product_variant, get_branches, get_categories_all, get_provider, update_branch, update_product, update_product_variant
+from controllers.product_c import create_branch, create_brand, create_category, create_product, create_provider, delete_branch, delete_brand, delete_product, delete_product_variant, get_branches, get_brands, get_categories_all, get_provider, update_branch, update_brand, update_product, update_product_variant
 
 
 router = APIRouter()
@@ -29,8 +31,7 @@ def read_root():
 def create_product_and_variants_endp(
     product: ProductCreate,
     session: SessionDep = SessionDep
-) -> ProductOut:
-    print(product)
+):
     return create_product(product, session)
 
 @router.put("/update")
@@ -117,5 +118,35 @@ def update_branch_endp(
     branch_id: int,
     branch: BranchCreate,
     session: SessionDep = SessionDep
-):
+)-> BranchOut:
     return update_branch(branch_id, branch, session)
+
+# endpoints for brands 
+
+@router.post("/create/brand")
+def create_brand_endp(
+    brand: BrandCreate,
+    session: SessionDep = SessionDep
+)-> BrandOut:
+    return create_brand(brand, session)
+
+@router.get("/get/brand")
+def get_brand_endp(
+    session: SessionDep = SessionDep
+)-> List[BrandOut]:
+    return get_brands(session)
+
+@router.delete("/delete/brand")
+def delete_brand_endp(
+    brand_id: int,
+    session: SessionDep = SessionDep
+):
+    return delete_brand(brand_id, session)
+
+@router.put("/update/brand")
+def update_brand_endp(
+    brand_id: int,
+    brand: BrandCreate,
+    session: SessionDep = SessionDep
+)-> BrandOut:
+    return update_brand(brand_id, brand, session)

@@ -6,3 +6,4 @@ passlib[bcrypt]
 alembic
 python-barcode 
 qrcode[pil]
+pytest

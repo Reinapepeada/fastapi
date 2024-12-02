@@ -42,6 +42,7 @@ def update_branch_db(branch_id: int, branch: BranchCreate, session):
     except Exception as e:
         session.rollback()
         raise e
+    return db_branch
 
 def get_branches_all(session):
     try:
