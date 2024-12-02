@@ -217,3 +217,22 @@ class ProviderOut(BaseModel):
         orm_mode = True
 
 
+class BranchCreate(BaseModel):
+    name: str
+    location: Optional[str]
+
+    class Config:
+        orm_mode = True
+
+class BranchUpdate(BaseModel):
+    name: Optional[str]
+    location: Optional[str]
+
+class BranchOut(BaseModel):
+    id: int
+    name: str
+    location: Optional[str]
+    created_at: datetime
+
+    class Config:
+        orm_mode = True

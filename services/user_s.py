@@ -40,7 +40,7 @@ def create_new_user(user: UserCreate, session: Session):
 
 def update_existing_user(user_id: int, user: UserUpdate, session: Session):
     db_user = session.query(User).filter(User.id == user_id).first()
-    for key, value in user.dict(exclude_unset=True).items():
+    for key, value in user.model_dump(exclude_unset=True).items():
         setattr(db_user, key, value)
     session.commit()
     session.refresh(db_user)

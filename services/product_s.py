@@ -2,10 +2,11 @@
 import uuid
 
 from sqlmodel import select
-from database.models.product import Branch, Category, Product, ProductVariant, Provider
+from database.models.product import Branch, Category, Product, ProductUpdate, ProductVariant, ProductVariantUpdate, Provider
 from barcode import Code128
 from barcode.writer import ImageWriter
 import qrcode
+from services.branch_s import ensure_branch_exists
 
 
 def ensure_category_exists(category_id: int, session):
@@ -19,17 +20,19 @@ def ensure_provider_exists(provider_id: int, session):
     if not provider:
         raise ValueError(f"Provider with id {provider_id} does not exist")
     return provider
-def ensure_branch_exists(branch_id: int, session):
-    branch = session.exec(select(Branch).where(Branch.id == branch_id)).first()
-    if not branch:
-        raise ValueError(f"Branch with id {branch_id} does not exist")
-    return branch
+
 
 def ensure_product_exists(product_id: int, session):
     product = session.exec(select(Product).where(Product.id == product_id)).first()
     if not product:
         raise ValueError(f"Product with id {product_id} does not exist")
     return product
+
+def ensure_product_variant_exists(variant_id: int, session):
+    variant = session.exec(select(ProductVariant).where(ProductVariant.id == variant_id)).first()
+    if not variant:
+        raise ValueError(f"Product variant with id {variant_id} does not exist")
+    return variant
 
 def generate_sku(product_name: str, category_id: int, provider_id: int) -> str:
     unique_id = uuid.uuid4().hex[:8].upper()
@@ -71,6 +74,7 @@ def create_product_and_variants(product, session, create_product_if_not_exists=T
 
         # Crear variantes
         for variant in product.ProductVariant:
+            ensure_branch_exists(variant.branch_id, session)
             sku = generate_sku(
                 product_name=product.name,
                 category_id=product.category_id,
@@ -93,6 +97,54 @@ def create_product_and_variants(product, session, create_product_if_not_exists=T
 
     return db_product
 
+# dinamyc update products by parameters passed
+# db_user = session.query(User).filter(User.id == user_id).first()
+#     for key, value in user.model_dump(exclude_unset=True).items():
+#         setattr(db_user, key, value)
+#     session.commit()
+#     session.refresh(db_user)
+#     return db_user
+def update_product_db(product_id: int, product: ProductUpdate, session):
+    try:
+        ensure_product_exists(product_id, session)
+        db_product = session.exec(select(Product).where(Product.id == product_id)).first()
+        for key, value in product.model_dump(exclude_unset=True).items():
+            setattr(db_product, key, value)
+        session.commit()
+        session.refresh(db_product)
+    except Exception as e:
+        session.rollback()
+        raise e
+
+def update_product_variant_db(variant_id: int, variant: ProductVariantUpdate, session):
+    try:
+        ensure_product_variant_exists(variant_id, session)
+        db_variant = session.exec(select(ProductVariant).where(ProductVariant.id == variant_id)).first()
+        for key, value in variant.model_dump(exclude_unset=True).items():
+            setattr(db_variant, key, value)
+        session.commit()
+        session.refresh(db_variant)
+    except Exception as e:
+        session.rollback()
+        raise e
+    
+def delete_product_db(product_id: int, session):
+    try:
+        db_product = ensure_product_exists(product_id, session)
+        session.delete(db_product)
+        session.commit()
+    except Exception as e:
+        session.rollback()
+        raise e
+
+def delete_product_variant_db(variant_id: int, session):
+    try:
+        db_variant = ensure_product_variant_exists(variant_id, session)
+        session.delete(db_variant)
+        session.commit()
+    except Exception as e:
+        session.rollback()
+        raise e
     
 def generate_barcode(sku: str):
     barcode = Code128(sku, writer=ImageWriter())
@@ -123,7 +175,7 @@ def create_category_db(category, session):
         session.rollback()
         raise e
     
-def get_category_all(session):
+def get_categories_all_db(session):
     categories = session.exec(select(Category)).all()
     print(categories)
     return categories
