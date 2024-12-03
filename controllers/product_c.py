@@ -2,17 +2,21 @@
 from fastapi import HTTPException
 from sqlmodel import Session
 # modelos de las tablas
-from database.models.product import BranchCreate, BrandCreate, CategoryCreate, ProductCreate, ProductUpdate, ProductVariantUpdate, ProviderCreate
+from database.models.product import BranchCreate, BrandCreate, CategoryCreate, ProductCreate, ProductUpdate, ProductVariantCreate, ProductVariantUpdate, ProviderCreate
 
 from services.product_s import (
-    create_product_and_variants,
+    create_product_db,
+    create_product_variant_db,
     create_provider_db, 
     delete_product_db,
     delete_product_variant_db,
+    get_product_variants_by_product_id_db,
+    get_products_all_db,
     update_product_db,
     update_product_variant_db
     )
-# crud operations for auxiliary tables
+
+# Crud operations for auxiliary tables
 from services.branch_s import create_branch_db, delete_branch_db, get_branches_all, update_branch_db
 from services.brand_s import create_brand_db, delete_brand_db, get_brands_all, update_brand_db
 from services.providers_s import delete_provider_db, get_providers_all, update_provider_db
@@ -22,11 +26,16 @@ from services import auth_s
 
 def create_product(product: ProductCreate, session: Session):
     try:
-        product_variants=create_product_and_variants(product, session)
-        return product_variants
+        return create_product_db(product, session)
     except Exception as e:
         return HTTPException(status_code=400, detail=str(e))
-    
+
+def get_products_all(session: Session):
+    try:
+        return get_products_all_db(session)
+    except Exception as e:
+        return HTTPException(status_code=400, detail=str(e))
+
 def update_product(product_id: int, product: ProductUpdate, session: Session):
     try:
         product_variants=update_product_db(product_id, product, session)
@@ -34,16 +43,28 @@ def update_product(product_id: int, product: ProductUpdate, session: Session):
     except Exception as e:
         return HTTPException(status_code=400, detail=str(e))
 
+def delete_product(product_id: int, session: Session):
+    try:
+        return delete_product_db(product_id, session)
+    except Exception as e:
+        return HTTPException(status_code=400, detail=str(e))
+    
+def create_product_variant(variant: ProductVariantCreate, session: Session):
+    try:
+        return create_product_variant_db(variant, session)
+    except Exception as e:
+        return HTTPException(status_code=400, detail=str(e))
+
+def get_product_variants_by_product_id(product_id: int, session: Session):
+    try:
+        return get_product_variants_by_product_id_db(product_id, session)
+    except Exception as e:
+        return HTTPException(status_code=400, detail=str(e))
+
 def update_product_variant(variant_id: int, variant: ProductVariantUpdate, session: Session):
     try:
         product_variants=update_product_variant_db(variant_id, variant, session)
         return product_variants
-    except Exception as e:
-        return HTTPException(status_code=400, detail=str(e))
-
-def delete_product(product_id: int, session: Session):
-    try:
-        return delete_product_db(product_id, session)
     except Exception as e:
         return HTTPException(status_code=400, detail=str(e))
 

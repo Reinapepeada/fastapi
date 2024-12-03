@@ -115,6 +115,12 @@ class ProductVariantCreate(BaseModel):
     class ConfigDict:
         from_attributes = True
 
+class ProductVariantCreateList(BaseModel):
+    variants: List[ProductVariantCreate]
+    
+    class ConfigDict:
+        from_attributes = True
+
 class ProductVariantUpdate(BaseModel):
     color: str|None
     size: str|None
@@ -136,19 +142,18 @@ class ProductVariantOut(BaseModel):
         from_attributes = True
 
 class ProductCreate(BaseModel):
-    serial_number: str
+    serial_number: str 
     name: str
     description: str|None
-    brand_id: int|None
-    warranty_time: int|None
+    brand_id: int|None = None
+    warranty_time: int|None = None
     cost: float
     wholesale_price: float
     retail_price: float
     status: Literal['active', 'inactive', 'discontinued']
-    category_id: int|None
-    provider_id: int|None
-    images: Optional[List[str]]
-    variants: Optional[List[ProductVariantCreate]]
+    category_id: int|None = None
+    provider_id: int|None = None
+    images: Optional[List[str]] = None
 
 
 class ProductUpdate(BaseModel):
@@ -170,6 +175,7 @@ class ProductUpdate(BaseModel):
     
 
 class ProductOut(BaseModel):
+    id: int
     serial_number: str
     name: str
     description: str|None

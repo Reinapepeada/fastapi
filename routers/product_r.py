@@ -12,7 +12,8 @@ from database.models.product import (
     CategoryUpdate, 
     ProductCreate, 
     ProductUpdate, 
-    ProductOut, 
+    ProductOut,
+    ProductVariantCreateList, 
     ProductVariantOut, 
     ProductVariantUpdate,
     ProviderCreate, 
@@ -23,12 +24,15 @@ from controllers.product_c import (
     create_branch,
     create_brand,
     create_category, 
-    create_product, 
+    create_product,
+    create_product_variant, 
     create_provider, 
     delete_branch, 
     delete_brand, 
     delete_category, 
-    delete_product, delete_product_variant, delete_provider, get_branches, get_brands, get_categories, get_providers, update_branch, update_brand, update_category, update_product, update_product_variant, update_provider
+    delete_product, delete_product_variant, delete_provider, get_branches, get_brands, get_categories,
+    get_product_variants_by_product_id,
+    get_products_all, get_providers, update_branch, update_brand, update_category, update_product, update_product_variant, update_provider
 )
 
 router = APIRouter()
@@ -40,11 +44,18 @@ def read_root():
 # product endpoints
 
 @router.post("/create")
-def create_product_and_variants_endp(
+def create_product_endp(
     product: ProductCreate,
     session: SessionDep = SessionDep
 )-> ProductOut:
+    print(product)
     return create_product(product, session)
+
+@router.get("/get")
+def get_products_endp(
+    session: SessionDep = SessionDep
+)-> List[ProductOut]:
+    return get_products_all(session)
 
 @router.put("/update")
 def update_product_endp(
@@ -62,8 +73,21 @@ def delete_product_endp(
     return delete_product(product_id, session)
 
 
-# endpoints for product variants
 
+# endpoints for product variants
+@router.post("/create/variant")
+def create_product_variant_endp(
+    variant: ProductVariantCreateList,
+    session: SessionDep = SessionDep
+)-> ProductVariantOut:
+    return create_product_variant(variant, session)
+
+@router.get("/get/variant")
+def get_product_variants_by_product_id_endp(
+    product_id: int,
+    session: SessionDep = SessionDep
+)-> List[ProductVariantOut]:
+    return get_product_variants_by_product_id(product_id, session)
 
 @router.put("/update/variant")
 def update_product_variant_endp(
@@ -73,13 +97,11 @@ def update_product_variant_endp(
 )-> ProductVariantOut:
     return update_product_variant(variant_id, variant, session)
 
-
 @router.delete("/delete/variant")
 def delete_product_variant_endp(
     variant_id: int,
     session: SessionDep = SessionDep):
     return delete_product_variant(variant_id, session)
-
 
 
 # enpoints for branches
