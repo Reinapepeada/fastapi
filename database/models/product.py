@@ -1,7 +1,9 @@
 from pydantic import BaseModel, EmailStr, constr
-from sqlmodel import Field, SQLModel, Relationship
+from sqlmodel import Field, SQLModel, Relationship,Enum as Eenum ,UniqueConstraint
 from typing import List, Literal, Optional
 from datetime import datetime
+from enum import Enum
+
 
 
 class Branch(SQLModel, table=True):
@@ -40,68 +42,115 @@ class Brand(SQLModel, table=True):
     products: List["Product"] = Relationship(back_populates="brand")
 
 
+class ProductStatus(str, Enum):
+    ACTIVE = "active"
+    INACTIVE = "inactive"
+    DISCONTINUED = "discontinued"
+
+
+class SizeUnit(str, Enum):
+    CLOTHING = "clothing"  # Tallas de ropa (e.g., S, M, L)
+    DIMENSIONS = "dimensions"  # Dimensiones (e.g., cm, m)
+    WEIGHT = "weight"  # Peso (e.g., kg, g)
+    OTHER = "other"  # Otros
+
+class Unit (str, Enum):
+    
+    # Medidas de peso
+    KG = "kg"
+    G = "g"
+    LB = "lb"
+    
+    # Medidas de longitud
+    cm = "cm"
+    m = "m"
+    inch= "inch"
+    
+    # Tallas de ropa
+    XS = "XS"
+    S = "S"
+    M = "M"
+    L = "L"
+    XL = "XL"
+
+
 class Product(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     serial_number: str = Field(unique=True, nullable=False, index=True)
     name: str = Field(index=True, nullable=False)
     description: Optional[str] = Field(nullable=True, default=None)
-    warranty_time: Optional[int]  # en días, meses o años
+    warranty_time: Optional[int] = Field(nullable=True)  # Valor del tiempo de garantía
+    warranty_unit: Optional[str] = Field(default="days")  # 'days', 'months', 'years'
     cost: float = Field(nullable=False)
     wholesale_price: float = Field(nullable=False)
     retail_price: float = Field(nullable=False)
-    status: str = Field(default="active")  # 'active', 'inactive', 'discontinued'
+    status: ProductStatus = Eenum(ProductStatus, nullable=False)
     category_id: Optional[int] = Field(default=None, foreign_key="category.id")
     provider_id: Optional[int] = Field(default=None, foreign_key="provider.id")
     brand_id: Optional[int] = Field(default=None, foreign_key="brand.id")
     created_at: datetime = Field(default_factory=datetime.now)
     updated_at: datetime = Field(default_factory=datetime.now)
 
+    # Relaciones
     brand: Optional["Brand"] = Relationship(back_populates="products")
     category: Optional["Category"] = Relationship(back_populates="products")
     provider: Optional["Provider"] = Relationship(back_populates="products")
-    images: List["ProductImage"] = Relationship(back_populates="product",cascade_delete=True)
-    variants: List["ProductVariant"] = Relationship(back_populates="product",cascade_delete=True)
+    variants: List["ProductVariant"] = Relationship(back_populates="product", cascade_delete=True)
     discounts: List["Discount"] = Relationship(back_populates="product")
     purchase_items: List["PurchaseItem"] = Relationship(back_populates="product")
 
-class ProductVariant(SQLModel, table=True):  # Variantes de productos
-    id: int|None = Field(default=None, primary_key=True)
+
+class ProductVariant(SQLModel, table=True):
+    __table_args__ = (
+        UniqueConstraint("product_id", "color", "size", "size_unit", name="unique_variant_constraint"),
+    )
+    id: int | None = Field(default=None, primary_key=True)
     product_id: int = Field(foreign_key="product.id", nullable=False)
-    sku: str = Field(index=True, nullable=False,unique=True)  # Código único de variante
-    color: str|None =Field(nullable=True,default=None)
-    size: str|None=Field(nullable=True,default=None)
-    branch_id: int|None = Field(default=None, foreign_key="branch.id")
-    stock: int = Field(default=0)  # Cantidad en inventario
+    sku: str = Field(index=True, nullable=False, unique=True)
+    color: str | None = Field(nullable=True, default=None, index=True)
+    size: str | None = Field(nullable=True, default=None, index=True)
+    size_unit: SizeUnit = Eenum(SizeUnit, nullable=True, default=None)
+    unit: Unit = Eenum(Unit, nullable=False)
+    branch_id: int | None = Field(default=None, foreign_key="branch.id")
+    stock: int = Field(default=0, index=True)
+    min_stock: int = Field(default=5, index=True)  # Para alertar stock bajo
     created_at: datetime = Field(default_factory=datetime.now)
     updated_at: datetime = Field(default_factory=datetime.now)
 
+    # Relaciones
     product: Optional["Product"] = Relationship(back_populates="variants")
+    images: List["ProductImage"] = Relationship(back_populates="variant", cascade_delete=True)
     branch: Optional["Branch"] = Relationship(back_populates="products")
     order_items: List["OrderItem"] = Relationship(back_populates="products")
     purchase_items: List["PurchaseItem"] = Relationship(back_populates="productvariant")
-    
 
-class Discount(SQLModel, table=True):  # Descuentos dinámicos
-    id: int|None = Field(default=None, primary_key=True)
-    name: str = Field(nullable=False)  # Nombre del descuento (e.g., "Promo Navidad")
+
+class ProductImage(SQLModel, table=True):
+    id: int | None = Field(default=None, primary_key=True)
+    variant_id: int = Field(foreign_key="productvariant.id", nullable=False)
+    image_url: str = Field(nullable=False)
+    created_at: datetime = Field(default_factory=datetime.now)
+
+    # Relaciones
+    variant: Optional["ProductVariant"] = Relationship(back_populates="images")
+
+
+class Discount(SQLModel, table=True):
+    id: int | None = Field(default=None, primary_key=True)
+    name: str = Field(nullable=False)
     discount_type: str = Field(nullable=False)  # 'percentage' o 'fixed'
-    value: float = Field(nullable=False)  # Valor del descuento (porcentaje o fijo)
-    start_date: Optional[datetime]
-    end_date: Optional[datetime]
-    is_active: bool = Field(default=True)  # Estado del descuento
-    product_id: int|None = Field(default=None, foreign_key="product.id")
-    category_id: int|None = Field(default=None, foreign_key="category.id")
+    value: float = Field(nullable=False)  # Valor del descuento
+    start_date: Optional[datetime] = Field(nullable=True)
+    end_date: Optional[datetime] = Field(nullable=True)
+    is_active: bool = Field(default=True)
+    product_id: int | None = Field(default=None, foreign_key="product.id")
+    category_id: int | None = Field(default=None, foreign_key="category.id")
+
+    # Relaciones
     product: Optional["Product"] = Relationship(back_populates="discounts")
     category: Optional["Category"] = Relationship(back_populates="discounts")
 
 
-class ProductImage(SQLModel, table=True):
-    id: int|None = Field(default=None, primary_key=True)
-    product_id: int = Field(foreign_key="product.id", nullable=False)
-    image_url: str = Field(nullable=False)
-    created_at: datetime = Field(default_factory=datetime.now)
-
-    product: Optional["Product"] = Relationship(back_populates="images")
 
 
 # schemas de pydantic para productos
@@ -109,8 +158,12 @@ class ProductVariantCreate(BaseModel):
     product_id: int
     color: str|None
     size: str|None
+    size_unit: SizeUnit|None
+    unit: Unit
     branch_id: int|None
     stock: int
+    min_stock: int
+    images: Optional[List[str]] = None
 
     class ConfigDict:
         from_attributes = True
@@ -121,11 +174,16 @@ class ProductVariantCreateList(BaseModel):
     class ConfigDict:
         from_attributes = True
 
+
 class ProductVariantUpdate(BaseModel):
-    color: str|None
-    size: str|None
-    branch_id: int|None
-    stock: int|None
+    color: str|None= None
+    size: str|None= None
+    size: str|None= None
+    size_unit: SizeUnit|None= None
+    unit: Unit = None
+    branch_id: int|None= None
+    stock: int|None= None
+    images: Optional[List[str]] = None
 
 class ProductVariantOut(BaseModel):
     id: int
@@ -133,10 +191,13 @@ class ProductVariantOut(BaseModel):
     sku: str
     color: str|None
     size: str|None
+    size_unit: SizeUnit|None
+    unit: Unit
     branch_id: int|None
     stock: int
     created_at: datetime
     updated_at: datetime
+    images: Optional[List[str]] = None
 
     class ConfigDict:
         from_attributes = True
@@ -150,10 +211,10 @@ class ProductCreate(BaseModel):
     cost: float
     wholesale_price: float
     retail_price: float
-    status: Literal['active', 'inactive', 'discontinued']
+    status: ProductStatus |None = None
     category_id: int|None = None
     provider_id: int|None = None
-    images: Optional[List[str]] = None
+    
 
 
 class ProductUpdate(BaseModel):
@@ -165,10 +226,9 @@ class ProductUpdate(BaseModel):
     cost: Optional[float] = None
     wholesale_price: Optional[float] = None
     retail_price: Optional[float] = None
-    status: Optional[Literal['active', 'inactive', 'discontinued']] = None
+    status: Optional[ProductStatus] = None
     category_id: Optional[int] = None
     provider_id: Optional[int] = None
-    images: Optional[List[str]] = None
 
     class ConfigDict:
         from_attributes = True
@@ -184,10 +244,9 @@ class ProductOut(BaseModel):
     cost: float
     wholesale_price: float
     retail_price: float
-    status: Literal['active', 'inactive', 'discontinued']
+    status: ProductStatus 
     category_id: int|None
     provider_id: int|None
-    images: Optional[List[str]]
     variants: Optional[List[ProductVariantCreate]]
 
     class ConfigDict:

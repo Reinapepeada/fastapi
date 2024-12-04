@@ -6,54 +6,64 @@ client = TestClient(app)
 
 # Datos de prueba para productos
 product_create_data = {
- 
-    "serial_number": "SN4ds1435",
-    "name": "Product Test",
+  "serial_number": "SN4dsewqeq1435",
+  "name": "Product Test",
+  "description": "This is a test product",
+  "brand_id": 1,
+  "warranty_time": 12,
+  "cost": 50.0,
+  "wholesale_price": 60.0,
+  "retail_price": 75.0,
+  "status": "active",
+  "category_id": 1,
+  "provider_id": 1
+}
+
+product_update_data = {
+    "serial_number": "SN4dsewqeq1435",
+    "name": "Product Test Updated",
     "description": "This is a test product",
+    "brand_id": 1,
     "warranty_time": 12,
     "cost": 50.0,
     "wholesale_price": 60.0,
     "retail_price": 75.0,
     "status": "active",
     "category_id": 1,
-    "provider_id": 1,
-    "brand_id": 1,
-
-  "images": [
-    "string"
-  ]
+    "provider_id": 1
 }
 
-product_update_data = {
-    "name": "Updated Product",
-    "description": "Updated description",
-    "warranty_time": 24,
-    "cost": 55.0,
-    "wholesale_price": 65.0,
-    "retail_price": 80.0,
-    "status": "inactive",
-    "category_id": 2,
-    "provider_id": 28,
-    "brand_id": 18
-}
+
+
 
 # Datos de prueba para variantes
 variant_create_data ={
     "variants": [
 {
-    "product_id": 2,
+    "product_id": 18,
     "color": "Red",
     "size": "M",
     "branch_id": 1,
-    "stock": 100
+    "stock": 100,
+    "size_unit": "CLOTHING",
+    "unit": "kg",
+    "images": [
+    "string"
+  ]
 },
 
 {
-    "product_id": 2,
+    "product_id": 18,
     "color": "Blue",
-    "size": "L",
     "branch_id": 2,
-    "stock": 200
+    "size": "L",
+    "size_unit": "CLOTHING",
+    "unit": "KG",
+    "min_stock": 5,
+    "stock": 200,
+  "images": [
+    "string"
+  ]
 }
 ] 
 }
@@ -61,9 +71,15 @@ variant_create_data ={
 variant_update_data = {
     "sku": "UPDATED123",
     "color": "Blue",
-    "size": "L",
     "branch_id": 2,
-    "stock": 200
+    "size": "L",
+    "size_unit": "CLOTHING",
+    "unit": "KG",
+    "min_stock": 5,
+    "stock": 200,
+  "images": [
+    "string"
+  ]
 }
 
 # Datos globales para las pruebas

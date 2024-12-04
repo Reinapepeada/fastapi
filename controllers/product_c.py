@@ -2,7 +2,7 @@
 from fastapi import HTTPException
 from sqlmodel import Session
 # modelos de las tablas
-from database.models.product import BranchCreate, BrandCreate, CategoryCreate, ProductCreate, ProductUpdate, ProductVariantCreate, ProductVariantUpdate, ProviderCreate
+from database.models.product import BranchCreate, BrandCreate, CategoryCreate, ProductCreate, ProductUpdate, ProductVariantCreate, ProductVariantCreateList, ProductVariantUpdate, ProviderCreate
 
 from services.product_s import (
     create_product_db,
@@ -49,7 +49,7 @@ def delete_product(product_id: int, session: Session):
     except Exception as e:
         return HTTPException(status_code=400, detail=str(e))
     
-def create_product_variant(variant: ProductVariantCreate, session: Session):
+def create_product_variant(variant: ProductVariantCreateList, session: Session):
     try:
         return create_product_variant_db(variant, session)
     except Exception as e:
