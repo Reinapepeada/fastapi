@@ -9,12 +9,12 @@ tags:
 
 ## Installation
 ```
-py -m venv venv
+py -m venv .venv
 ```
 
 ## Usage
 ```
-venv\Scripts\activate
+.venv\Scripts\activate
 ```
 
 ## install dependencies
