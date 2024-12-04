@@ -161,20 +161,21 @@ def create_product_variant_db(product_variants, session):
                 category_id=db_product.category_id,
                 provider_id=db_product.provider_id,
             )
-
             # Crear la variante
             db_variant = ProductVariant(
                 product_id=variant.product_id,
                 sku=sku,
                 color=variant.color,
                 size=variant.size,
+                size_unit=variant.size_unit,
+                unit=variant.unit,
                 branch_id=variant.branch_id,
                 stock=variant.stock,
             )
             session.add(db_variant)
             db_variants.append(db_variant)
-
         session.commit()
+
         return db_variants
 
     except Exception as e:

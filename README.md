@@ -54,7 +54,7 @@ Esto generará un nuevo archivo de migración en el directorio alembic/versions.
 
 ## Aplicar la migración: Para aplicar la migración a la base de datos, ejecuta:
 alembic upgrade head
-
+alembic downgrade -1
 Esto aplicará la migración a la base de datos y actualizará la tabla alembic_version para reflejar la migración aplicada.
 
 

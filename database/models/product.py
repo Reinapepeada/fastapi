@@ -43,23 +43,23 @@ class Brand(SQLModel, table=True):
 
 
 class ProductStatus(str, Enum):
-    ACTIVE = "active"
-    INACTIVE = "inactive"
-    DISCONTINUED = "discontinued"
+    active = "active"
+    inactive = "inactive"
+    discontinued = "discontinued"
 
 
 class SizeUnit(str, Enum):
-    CLOTHING = "clothing"  # Tallas de ropa (e.g., S, M, L)
-    DIMENSIONS = "dimensions"  # Dimensiones (e.g., cm, m)
-    WEIGHT = "weight"  # Peso (e.g., kg, g)
-    OTHER = "other"  # Otros
+    clothing = "clothing"  # Tallas de ropa (e.g., S, M, L)
+    dimensions = "dimensions"  # Dimensiones (e.g., cm, m)
+    weight = "weight"  # Peso (e.g., kg, g)
+    other = "other"  # Otros
 
 class Unit (str, Enum):
     
     # Medidas de peso
-    KG = "kg"
-    G = "g"
-    LB = "lb"
+    kg = "kg"
+    g = "g"
+    lb = "lb"
     
     # Medidas de longitud
     cm = "cm"
@@ -67,11 +67,10 @@ class Unit (str, Enum):
     inch= "inch"
     
     # Tallas de ropa
-    XS = "XS"
-    S = "S"
-    M = "M"
-    L = "L"
-    XL = "XL"
+    xs = "xs"
+    s = "s"
+    l = "l"
+    xl = "xl"
 
 
 class Product(SQLModel, table=True):

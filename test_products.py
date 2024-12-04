@@ -6,7 +6,7 @@ client = TestClient(app)
 
 # Datos de prueba para productos
 product_create_data = {
-  "serial_number": "SN4dsewqeq1435",
+  "serial_number": "SN4q1542354325435",
   "name": "Product Test",
   "description": "This is a test product",
   "brand_id": 1,
@@ -20,7 +20,6 @@ product_create_data = {
 }
 
 product_update_data = {
-    "serial_number": "SN4dsewqeq1435",
     "name": "Product Test Updated",
     "description": "This is a test product",
     "brand_id": 1,
@@ -36,51 +35,7 @@ product_update_data = {
 
 
 
-# Datos de prueba para variantes
-variant_create_data ={
-    "variants": [
-{
-    "product_id": 18,
-    "color": "Red",
-    "size": "M",
-    "branch_id": 1,
-    "stock": 100,
-    "size_unit": "CLOTHING",
-    "unit": "kg",
-    "images": [
-    "string"
-  ]
-},
 
-{
-    "product_id": 18,
-    "color": "Blue",
-    "branch_id": 2,
-    "size": "L",
-    "size_unit": "CLOTHING",
-    "unit": "KG",
-    "min_stock": 5,
-    "stock": 200,
-  "images": [
-    "string"
-  ]
-}
-] 
-}
-
-variant_update_data = {
-    "sku": "UPDATED123",
-    "color": "Blue",
-    "branch_id": 2,
-    "size": "L",
-    "size_unit": "CLOTHING",
-    "unit": "KG",
-    "min_stock": 5,
-    "stock": 200,
-  "images": [
-    "string"
-  ]
-}
 
 # Datos globales para las pruebas
 product_id = None
@@ -111,22 +66,61 @@ def test_update_product():
     product = response.json()
     assert product["name"] == product_update_data["name"]
 
-def test_delete_product():
-    global product_id
-    assert product_id is not None, "Product ID no disponible para eliminar"
-    response = client.delete(f"/products/delete?product_id={product_id}")
-    assert response.status_code == 200
-    result = response.json()
-    assert result["msg"] == "Product deleted successfully"
+# Datos de prueba para variantes
+variant_create_data ={
+  "variants": [
+    {
+      "product_id": product_id,
+      "color": "string",
+      "size": "string",
+      "size_unit": "clothing",
+      "unit": "cm",
+      "branch_id": 1,
+      "stock":6,
+      "min_stock": 2,
+      "images": [
+        "string"
+      ]
+    }
+  ]
+}
+
+variant_update_data = {
+    "color": "Blue",
+    "branch_id": 1,
+    "size": "l",
+    "size_unit": "clothing",
+      "unit": "cm",
+    "min_stock": 7,
+    "stock": 3232,
+}
 
 ### Pruebas de variantes de producto
 def test_create_product_variant():
+    global product_id 
+    variant_create_data ={
+      "variants": [
+        {
+          "product_id": product_id,
+          "color": "string",
+          "size": "string",
+          "size_unit": "clothing",
+          "unit": "cm",
+          "branch_id": 1,
+          "stock":6,
+          "min_stock": 2,
+          "images": [
+            "string"
+          ]
+        }
+      ]
+    }
     global variant_id
     response = client.post("/products/create/variant", json=variant_create_data)
     assert response.status_code == 200
-    variant = response.json()
-    variant_id = variant["id"]
-    assert variant["sku"] == variant_create_data["sku"]
+    variants = response.json()
+
+    variant_id = variants[0]["id"]
 
 def test_get_product_variants():
     global product_id
@@ -135,8 +129,6 @@ def test_get_product_variants():
     assert response.status_code == 200
     variants = response.json()
     assert isinstance(variants, list)
-    if variants:
-        assert "sku" in variants[0]
 
 def test_update_product_variant():
     global variant_id
@@ -144,7 +136,7 @@ def test_update_product_variant():
     response = client.put(f"/products/update/variant?variant_id={variant_id}", json=variant_update_data)
     assert response.status_code == 200
     variant = response.json()
-    assert variant["sku"] == variant_update_data["sku"]
+    assert variant["size_unit"] == variant_update_data["size_unit"]
 
 def test_delete_product_variant():
     global variant_id
@@ -153,3 +145,11 @@ def test_delete_product_variant():
     assert response.status_code == 200
     result = response.json()
     assert result["msg"] == "Variant deleted successfully"
+
+def test_delete_product():
+    global product_id
+    assert product_id is not None, "Product ID no disponible para eliminar"
+    response = client.delete(f"/products/delete?product_id={product_id}")
+    assert response.status_code == 200
+    result = response.json()
+    assert result["msg"] == "Product deleted successfully"

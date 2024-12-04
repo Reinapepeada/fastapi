@@ -48,7 +48,6 @@ def create_product_endp(
     product: ProductCreate,
     session: SessionDep = SessionDep
 )-> ProductOut:
-    print(product)
     return create_product(product, session)
 
 @router.get("/get")
@@ -80,6 +79,7 @@ def create_product_variant_endp(
     variant: ProductVariantCreateList,
     session: SessionDep = SessionDep
 )-> list[ProductVariantOut]:
+    print(variant)
     return create_product_variant(variant, session)
 
 @router.get("/get/variant")

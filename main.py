@@ -1,8 +1,6 @@
-from dotenv import load_dotenv
 from fastapi import FastAPI
 from routers import user_r, product_r
 
-load_dotenv()
 
 app = FastAPI()
 
