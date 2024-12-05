@@ -6,17 +6,18 @@ client = TestClient(app)
 
 # Datos de prueba para productos
 product_create_data = {
-    "serial_number": "SN35",
-    "name": "Product Test",
+    "serial_number": "SNdsadas35",
+    "name": "Product Test gkgjk",
     "description": "This is a test product",
     "brand_id": 1,
+    "warranty_unit": "YEARS",
     "warranty_time": 12,
     "cost": 50.0,
     "wholesale_price": 60.0,
     "retail_price": 75.0,
     "status": "ACTIVE",
     "category_id": 1,
-    "provider_id": 1,
+    "provider_id": 1
 }
 
 product_update_data = {
@@ -29,7 +30,7 @@ product_update_data = {
     "retail_price": 75.0,
     "status": "DISCONTINUED",
     "category_id": 1,
-    "provider_id": 1,
+    "provider_id": 1
 }
 
 
@@ -73,7 +74,7 @@ variant_create_data = {
     "variants": [
         {
             "product_id": product_id,
-            "color": "string",
+            "color": "AMARILLO",
             "size": "string",
             "size_unit": "CLOTHING",
             "unit": "CM",
@@ -86,7 +87,7 @@ variant_create_data = {
 }
 
 variant_update_data = {
-    "color": "Blue",
+    "color": "AZUL",
     "branch_id": 1,
     "size": "STRING",
     "size_unit": "CLOTHING",
@@ -103,8 +104,8 @@ def test_create_product_variant():
         "variants": [
             {
                 "product_id": product_id,
-                "color": "string",
-                "size": "string",
+                "color": "ROJO",
+                "size": "PIPIPIPI",
                 "size_unit": "CLOTHING",
                 "unit": "CM",
                 "branch_id": 1,

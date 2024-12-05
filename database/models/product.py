@@ -1,6 +1,7 @@
-from pydantic import BaseModel, EmailStr, constr
+from pydantic import BaseModel, EmailStr, StringConstraints, constr
+from sqlalchemy import CheckConstraint
 from sqlmodel import Field, SQLModel, Relationship,Enum as Eenum ,UniqueConstraint
-from typing import List, Literal, Optional
+from typing import Annotated, List, Literal, Optional
 from datetime import datetime
 from enum import Enum
 
@@ -70,23 +71,47 @@ class Unit(str, Enum):
     L = "L"
     XL = "XL"
 
+class WarrantyUnit(str, Enum):
+    DAYS = "DAYS"
+    MONTHS = "MONTHS"
+    YEARS = "YEARS"
+
+class Color(str, Enum):
+    ROJO = "ROJO"
+    AZUL = "AZUL"
+    VERDE = "VERDE"
+    AMARILLO = "AMARILLO"
+    NARANJA = "NARANJA"
+    VIOLETA = "VIOLETA"
+    ROSADO = "ROSADO"
+    MARRON = "MARRON"
+    GRIS = "GRIS"
+    BLANCO = "BLANCO"
+    NEGRO = "NEGRO"
+    BORDO="BORDO"
+
 class Product(SQLModel, table=True):
+    __table_args__ = (
+        UniqueConstraint("name", "category_id", "brand_id", name="unique_product_per_category_brand"),
+        CheckConstraint("cost >= 0", name="check_cost_positive"),
+        CheckConstraint("wholesale_price >= 0", name="check_wholesale_price_positive"),
+        CheckConstraint("retail_price >= 0", name="check_retail_price_positive"),
+    )
     id: Optional[int] = Field(default=None, primary_key=True)
     serial_number: str = Field(unique=True, nullable=False, index=True)
     name: str = Field(index=True, nullable=False)
     description: Optional[str] = Field(nullable=True, default=None)
+    warranty_unit: WarrantyUnit =Eenum(WarrantyUnit,nullable=True)  # Unidad de tiempo de garantía
     warranty_time: Optional[int] = Field(nullable=True)  # Valor del tiempo de garantía
-    warranty_unit: Optional[str] = Field(default="days")  # 'days', 'months', 'years'
     cost: float = Field(nullable=False)
     wholesale_price: float = Field(nullable=False)
     retail_price: float = Field(nullable=False)
-    status: ProductStatus = Eenum(ProductStatus, nullable=False)
+    status: ProductStatus = Eenum(ProductStatus,default=ProductStatus.INACTIVE, nullable=False)
     category_id: Optional[int] = Field(default=None, foreign_key="category.id")
     provider_id: Optional[int] = Field(default=None, foreign_key="provider.id")
     brand_id: Optional[int] = Field(default=None, foreign_key="brand.id")
     created_at: datetime = Field(default_factory=datetime.now)
-    updated_at: datetime = Field(default_factory=datetime.now)
-
+    updated_at: datetime = Field(default_factory=datetime.now, sa_column_kwargs={"onupdate": datetime.now})
     # Relaciones
     brand: Optional["Brand"] = Relationship(back_populates="products")
     category: Optional["Category"] = Relationship(back_populates="products")
@@ -95,15 +120,18 @@ class Product(SQLModel, table=True):
     discounts: List["Discount"] = Relationship(back_populates="product")
     purchase_items: List["PurchaseItem"] = Relationship(back_populates="product")
 
+    
+
 
 class ProductVariant(SQLModel, table=True):
     __table_args__ = (
         UniqueConstraint("product_id", "color", "size", "size_unit", name="unique_variant_constraint"),
+        CheckConstraint("stock >= 0", name="check_stock_positive"),
     )
     id: int | None = Field(default=None, primary_key=True)
     product_id: int = Field(foreign_key="product.id", nullable=False)
     sku: str = Field(index=True, nullable=False, unique=True)
-    color: str | None = Field(nullable=True, default=None, index=True)
+    color: Color | None = Eenum(Color, nullable=True, default=None, index=True)
     size: str | None = Field(nullable=True, default=None, index=True)
     size_unit: SizeUnit = Eenum(SizeUnit, nullable=True, default=None)
     unit: Unit = Eenum(Unit, nullable=False)
@@ -111,7 +139,7 @@ class ProductVariant(SQLModel, table=True):
     stock: int = Field(default=0, index=True)
     min_stock: int = Field(default=5, index=True)  # Para alertar stock bajo
     created_at: datetime = Field(default_factory=datetime.now)
-    updated_at: datetime = Field(default_factory=datetime.now)
+    updated_at: datetime = Field(default_factory=datetime.now, sa_column_kwargs={"onupdate": datetime.now})
 
     # Relaciones
     product: Optional["Product"] = Relationship(back_populates="variants")
@@ -150,13 +178,13 @@ class Discount(SQLModel, table=True):
 # schemas de pydantic para productos
 class ProductVariantCreate(BaseModel):
     product_id: int
-    color: str|None
-    size: str|None
-    size_unit: SizeUnit|None
-    unit: Unit
+    color: Color|None
+    size: str|None = None
+    size_unit: SizeUnit|None = None
+    unit: Unit = None
     branch_id: int|None
     stock: int
-    min_stock: int
+    min_stock: int=None
     images: Optional[List[str]] = None
 
     class ConfigDict:
@@ -170,8 +198,7 @@ class ProductVariantCreateList(BaseModel):
 
 
 class ProductVariantUpdate(BaseModel):
-    color: str|None= None
-    size: str|None= None
+    color: Color = None
     size: str|None= None
     size_unit: SizeUnit|None= None
     unit: Unit = None
@@ -207,10 +234,11 @@ class ProductVariantOut(BaseModel):
 
 class ProductCreate(BaseModel):
     serial_number: str 
-    name: str
-    description: str|None
+    name: str=StringConstraints(max_length=100,to_lower=True)
+    description: str|None=StringConstraints(to_lower=True)
     brand_id: int|None = None
     warranty_time: int|None = None
+    warranty_unit: WarrantyUnit|None = None
     cost: float
     wholesale_price: float
     retail_price: float
@@ -226,6 +254,7 @@ class ProductUpdate(BaseModel):
     description: Optional[str] = None
     brand_id: Optional[int] = None
     warranty_time: Optional[int] = None
+    warranty_unit: Optional[WarrantyUnit] = None
     cost: Optional[float] = None
     wholesale_price: Optional[float] = None
     retail_price: Optional[float] = None
@@ -244,6 +273,7 @@ class ProductOut(BaseModel):
     description: str|None
     brand_id: int|None
     warranty_time: int|None
+    warranty_unit: WarrantyUnit |None
     cost: float
     wholesale_price: float
     retail_price: float

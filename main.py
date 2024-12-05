@@ -1,10 +1,11 @@
 from fastapi import FastAPI
-from routers import user_r, product_r
+from routers import user_r, product_r,purchases_r
 
 
 app = FastAPI()
 
 app.include_router(user_r.router, tags=["Users"], prefix="/users")
+app.include_router(purchases_r.router, tags=["Purchases"], prefix="/purchases")
 app.include_router(product_r.router, tags=["Products"], prefix="/products")
 
 @app.get("/")

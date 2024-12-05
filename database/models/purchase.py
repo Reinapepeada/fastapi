@@ -24,3 +24,44 @@ class PurchaseItem(SQLModel, table=True):
     product: Optional["Product"] = Relationship(back_populates="purchase_items")
     productvariant: Optional["ProductVariant"] = Relationship(back_populates="purchase_items")
     purchase: Optional["Purchase"] = Relationship(back_populates="items")
+
+
+
+class CreatePurchaseItem(BaseModel):
+    product_id: int
+    productvariant_id: int
+    purchase_id: int
+    quantity: int
+    cost: float
+    # total_cost: float hacer calculo en backend
+
+class CreatePurchase(BaseModel):
+    provider_id: int
+    # total_price: float hacer calculo en backend
+    items: List[CreatePurchaseItem]
+
+class UpdatePurchaseItem(BaseModel):
+    quantity: Optional[int]
+    cost: Optional[float]
+    # total_cost: Optional[float] hacer calculo en backend
+
+class UpdatePurchase(BaseModel):
+    provider_id: Optional[int] = None
+    total_price: Optional[float] = None 
+    items: Optional[List[UpdatePurchaseItem]] = None
+
+class PurchaseItemResponse(BaseModel):
+    id: int
+    product_id: int
+    productvariant_id: int
+    quantity: int
+    cost: float
+    total_cost: float
+
+
+class PurchaseResponse(BaseModel):
+    id: int
+    provider_id: int
+    date: datetime
+    total_price: float
+    items: List[PurchaseItemResponse]

@@ -84,18 +84,19 @@ def create_product_db(product, session):
         db_product = product_exists_serial(product.serial_number, session)
         if not db_product:  # Crear si no existe
             db_product = Product(
+                serial_number=product.serial_number,
                 name=product.name,
                 description=product.description,
-                category_id=product.category_id,
-                provider_id=product.provider_id,
-                serial_number=product.serial_number,
                 brand_id=product.brand_id,
+                warranty_unit=product.warranty_unit,
                 warranty_time=product.warranty_time,
                 cost=product.cost,
                 wholesale_price=product.wholesale_price,
                 retail_price=product.retail_price,
                 status=product.status,
-            )
+                category_id=product.category_id,
+                provider_id=product.provider_id,
+             )
             session.add(db_product)
             session.commit()
             session.refresh(db_product)
@@ -120,10 +121,7 @@ def get_products_all_db(session):
 
 def update_product_db(product_id: int, product: ProductUpdate, session):
     try:
-        ensure_product_exists_id(product_id, session)
-        db_product = session.exec(
-            select(Product).where(Product.id == product_id)
-        ).first()
+        db_product = ensure_product_exists_id(product_id, session)
         # actualiza solos los campos que se le pasaron en product
         for key, value in product.model_dump(exclude_unset=True).items():
             setattr(db_product, key, value)

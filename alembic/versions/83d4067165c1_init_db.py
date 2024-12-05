@@ -1,8 +1,8 @@
 """init db
 
-Revision ID: 250f7d34ad67
+Revision ID: 83d4067165c1
 Revises: 
-Create Date: 2024-12-05 14:31:41.966534
+Create Date: 2024-12-05 18:03:54.529996
 
 """
 from typing import Sequence, Union
@@ -12,7 +12,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = '250f7d34ad67'
+revision: str = '83d4067165c1'
 down_revision: Union[str, None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -92,8 +92,8 @@ def upgrade() -> None:
     sa.Column('serial_number', sa.String(), nullable=False),
     sa.Column('name', sa.String(), nullable=False),
     sa.Column('description', sa.String(), nullable=True),
+    sa.Column('warranty_unit', sa.Enum('DAYS', 'MONTHS', 'YEARS', name='warrantyunit'), nullable=False),
     sa.Column('warranty_time', sa.Integer(), nullable=True),
-    sa.Column('warranty_unit', sa.String(), nullable=True),
     sa.Column('cost', sa.Float(), nullable=False),
     sa.Column('wholesale_price', sa.Float(), nullable=False),
     sa.Column('retail_price', sa.Float(), nullable=False),
@@ -103,10 +103,14 @@ def upgrade() -> None:
     sa.Column('brand_id', sa.Integer(), nullable=True),
     sa.Column('created_at', sa.DateTime(), nullable=False),
     sa.Column('updated_at', sa.DateTime(), nullable=False),
+    sa.CheckConstraint('cost >= 0', name='check_cost_positive'),
+    sa.CheckConstraint('retail_price >= 0', name='check_retail_price_positive'),
+    sa.CheckConstraint('wholesale_price >= 0', name='check_wholesale_price_positive'),
     sa.ForeignKeyConstraint(['brand_id'], ['brand.id'], ),
     sa.ForeignKeyConstraint(['category_id'], ['category.id'], ),
     sa.ForeignKeyConstraint(['provider_id'], ['provider.id'], ),
-    sa.PrimaryKeyConstraint('id')
+    sa.PrimaryKeyConstraint('id'),
+    sa.UniqueConstraint('name', 'category_id', 'brand_id', name='unique_product_per_category_brand')
     )
     op.create_index(op.f('ix_product_name'), 'product', ['name'], unique=False)
     op.create_index(op.f('ix_product_serial_number'), 'product', ['serial_number'], unique=True)
@@ -136,7 +140,7 @@ def upgrade() -> None:
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('product_id', sa.Integer(), nullable=False),
     sa.Column('sku', sa.String(), nullable=False),
-    sa.Column('color', sa.String(), nullable=True),
+    sa.Column('color', sa.Enum('ROJO', 'AZUL', 'VERDE', 'AMARILLO', 'NARANJA', 'VIOLETA', 'ROSADO', 'MARRON', 'GRIS', 'BLANCO', 'NEGRO', 'BORDO', name='color'), nullable=True),
     sa.Column('size', sa.String(), nullable=True),
     sa.Column('size_unit', sa.Enum('CLOTHING', 'DIMENSIONS', 'WEIGHT', 'OTHER', name='sizeunit'), nullable=False),
     sa.Column('unit', sa.Enum('KG', 'G', 'LB', 'CM', 'M', 'INCH', 'XS', 'S', 'L', 'XL', name='unit'), nullable=False),
@@ -145,12 +149,12 @@ def upgrade() -> None:
     sa.Column('min_stock', sa.Integer(), nullable=False),
     sa.Column('created_at', sa.DateTime(), nullable=False),
     sa.Column('updated_at', sa.DateTime(), nullable=False),
+    sa.CheckConstraint('stock >= 0', name='check_stock_positive'),
     sa.ForeignKeyConstraint(['branch_id'], ['branch.id'], ),
     sa.ForeignKeyConstraint(['product_id'], ['product.id'], ),
     sa.PrimaryKeyConstraint('id'),
     sa.UniqueConstraint('product_id', 'color', 'size', 'size_unit', name='unique_variant_constraint')
     )
-    op.create_index(op.f('ix_productvariant_color'), 'productvariant', ['color'], unique=False)
     op.create_index(op.f('ix_productvariant_min_stock'), 'productvariant', ['min_stock'], unique=False)
     op.create_index(op.f('ix_productvariant_size'), 'productvariant', ['size'], unique=False)
     op.create_index(op.f('ix_productvariant_sku'), 'productvariant', ['sku'], unique=True)
@@ -198,7 +202,6 @@ def downgrade() -> None:
     op.drop_index(op.f('ix_productvariant_sku'), table_name='productvariant')
     op.drop_index(op.f('ix_productvariant_size'), table_name='productvariant')
     op.drop_index(op.f('ix_productvariant_min_stock'), table_name='productvariant')
-    op.drop_index(op.f('ix_productvariant_color'), table_name='productvariant')
     op.drop_table('productvariant')
     op.drop_table('discount')
     op.drop_table('purchase')
