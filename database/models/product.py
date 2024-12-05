@@ -41,37 +41,34 @@ class Brand(SQLModel, table=True):
 
     products: List["Product"] = Relationship(back_populates="brand")
 
-
 class ProductStatus(str, Enum):
-    active = "active"
-    inactive = "inactive"
-    discontinued = "discontinued"
+    ACTIVE = "ACTIVE"
+    INACTIVE = "INACTIVE"
+    DISCONTINUED = "DISCONTINUED"
 
 
 class SizeUnit(str, Enum):
-    clothing = "clothing"  # Tallas de ropa (e.g., S, M, L)
-    dimensions = "dimensions"  # Dimensiones (e.g., cm, m)
-    weight = "weight"  # Peso (e.g., kg, g)
-    other = "other"  # Otros
+    CLOTHING = "CLOTHING"  # Tallas de ropa (e.g., S, M, L)
+    DIMENSIONS = "DIMENSIONS"  # Dimensiones (e.g., cm, m)
+    WEIGHT = "WEIGHT"  # Peso (e.g., kg, g)
+    OTHER = "OTHER"  # Otros
 
-class Unit (str, Enum):
-    
+class Unit(str, Enum):
     # Medidas de peso
-    kg = "kg"
-    g = "g"
-    lb = "lb"
+    KG = "KG"
+    G = "G"
+    LB = "LB"
     
     # Medidas de longitud
-    cm = "cm"
-    m = "m"
-    inch= "inch"
+    CM = "CM"
+    M = "M"
+    INCH = "INCH"
     
     # Tallas de ropa
-    xs = "xs"
-    s = "s"
-    l = "l"
-    xl = "xl"
-
+    XS = "XS"
+    S = "S"
+    L = "L"
+    XL = "XL"
 
 class Product(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
@@ -150,8 +147,6 @@ class Discount(SQLModel, table=True):
     category: Optional["Category"] = Relationship(back_populates="discounts")
 
 
-
-
 # schemas de pydantic para productos
 class ProductVariantCreate(BaseModel):
     product_id: int
@@ -184,6 +179,15 @@ class ProductVariantUpdate(BaseModel):
     stock: int|None= None
     images: Optional[List[str]] = None
 
+class ProductImageOut(BaseModel):
+    id: int
+    variant_id: int
+    image_url: str
+    created_at: datetime
+
+    class ConfigDict:
+        from_attributes = True
+
 class ProductVariantOut(BaseModel):
     id: int
     product_id: int
@@ -196,7 +200,7 @@ class ProductVariantOut(BaseModel):
     stock: int
     created_at: datetime
     updated_at: datetime
-    images: Optional[List[str]] = None
+    images: Optional[List[ProductImageOut]] = None
 
     class ConfigDict:
         from_attributes = True
@@ -246,7 +250,7 @@ class ProductOut(BaseModel):
     status: ProductStatus 
     category_id: int|None
     provider_id: int|None
-    variants: Optional[List[ProductVariantCreate]]
+    variants: Optional[List[ProductVariantOut]] = None
 
     class ConfigDict:
         from_attributes = True

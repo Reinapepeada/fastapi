@@ -1,8 +1,8 @@
 """init db
 
-Revision ID: 98913ab22fa8
+Revision ID: 250f7d34ad67
 Revises: 
-Create Date: 2024-12-04 12:57:18.242010
+Create Date: 2024-12-05 14:31:41.966534
 
 """
 from typing import Sequence, Union
@@ -12,7 +12,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = '98913ab22fa8'
+revision: str = '250f7d34ad67'
 down_revision: Union[str, None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -97,7 +97,7 @@ def upgrade() -> None:
     sa.Column('cost', sa.Float(), nullable=False),
     sa.Column('wholesale_price', sa.Float(), nullable=False),
     sa.Column('retail_price', sa.Float(), nullable=False),
-    sa.Column('status', sa.Enum('active', 'inactive', 'discontinued', name='productstatus'), nullable=False),
+    sa.Column('status', sa.Enum('ACTIVE', 'INACTIVE', 'DISCONTINUED', name='productstatus'), nullable=False),
     sa.Column('category_id', sa.Integer(), nullable=True),
     sa.Column('provider_id', sa.Integer(), nullable=True),
     sa.Column('brand_id', sa.Integer(), nullable=True),
@@ -138,8 +138,8 @@ def upgrade() -> None:
     sa.Column('sku', sa.String(), nullable=False),
     sa.Column('color', sa.String(), nullable=True),
     sa.Column('size', sa.String(), nullable=True),
-    sa.Column('size_unit', sa.Enum('clothing', 'dimensions', 'weight', 'other', name='sizeunit'), nullable=False),
-    sa.Column('unit', sa.Enum('kg', 'g', 'lb', 'cm', 'm', 'inch', 'xs', 's', 'l', 'xl', name='unit'), nullable=False),
+    sa.Column('size_unit', sa.Enum('CLOTHING', 'DIMENSIONS', 'WEIGHT', 'OTHER', name='sizeunit'), nullable=False),
+    sa.Column('unit', sa.Enum('KG', 'G', 'LB', 'CM', 'M', 'INCH', 'XS', 'S', 'L', 'XL', name='unit'), nullable=False),
     sa.Column('branch_id', sa.Integer(), nullable=True),
     sa.Column('stock', sa.Integer(), nullable=False),
     sa.Column('min_stock', sa.Integer(), nullable=False),

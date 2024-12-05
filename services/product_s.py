@@ -5,6 +5,7 @@ from database.models.product import (
     Branch,
     Category,
     Product,
+    ProductImage,
     ProductUpdate,
     ProductVariant,
     ProductVariantUpdate,
@@ -173,6 +174,9 @@ def create_product_variant_db(product_variants, session):
                 stock=variant.stock,
             )
             session.add(db_variant)
+            session.commit()
+            session.refresh(db_variant)
+            persist_product_images(variant.images, db_variant.id, session)
             db_variants.append(db_variant)
         session.commit()
 
@@ -181,7 +185,6 @@ def create_product_variant_db(product_variants, session):
     except Exception as e:
         session.rollback()
         raise RuntimeError(f"Error al crear variantes de producto: {e}")
-
 
 def get_product_variants_by_product_id_db(product_id: int, session):
     try:
@@ -220,6 +223,17 @@ def delete_product_variant_db(variant_id: int, session):
         raise e
     return {"msg": "Variant deleted successfully"}
 
+
+def persist_product_images(images, variant_id, session):
+    try:
+        ensure_product_variant_exists(variant_id, session)
+        for urlImage in images:
+            session.add(ProductImage(image_url=str(urlImage),variant_id=variant_id))
+            session.commit()
+    except Exception as e:
+        session.rollback()
+        raise e
+    
 
 def generate_barcode(sku: str):
     barcode = Code128(sku, writer=ImageWriter())
