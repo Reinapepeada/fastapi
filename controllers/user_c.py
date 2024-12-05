@@ -76,11 +76,8 @@ def reset_password_email(token: str, new_password: str, session: Session):
         sub= auth_s.verify_token(token)
     except Exception:
         raise HTTPException(status_code=400, detail="Invalid token")
-    print(sub)
     user = get_all_users(session=session, email=sub)
-    print(user[0])
-    print("/n")
-    print(new_password)
+    
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     try:

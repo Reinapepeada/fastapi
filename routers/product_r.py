@@ -79,7 +79,6 @@ def create_product_variant_endp(
     variant: ProductVariantCreateList,
     session: SessionDep = SessionDep
 )-> list[ProductVariantOut]:
-    print(variant)
     return create_product_variant(variant, session)
 
 @router.get("/get/variant")

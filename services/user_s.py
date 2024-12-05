@@ -73,9 +73,7 @@ def remove_user_by_id(user_id: int, session: Session):
 
 def change_password(user_id: int, new_password: str, session: Session):
     user = session.query(User).filter(User.id == user_id).first()
-    # print(user)
     new_hashed_password = auth_s.get_password_hash(new_password)
-    # print(new_hashed_password)
     user.password_hash = new_hashed_password
     session.commit()
     return {"ok": True}

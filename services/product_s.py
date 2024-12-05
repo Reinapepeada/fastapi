@@ -267,7 +267,6 @@ def create_category_db(category, session):
 
 def get_categories_all_db(session):
     categories = session.exec(select(Category)).all()
-    print(categories)
     return categories
 
 
