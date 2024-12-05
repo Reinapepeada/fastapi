@@ -2,12 +2,11 @@
 from fastapi import HTTPException
 from sqlmodel import Session
 # modelos de las tablas
-from database.models.product import BranchCreate, BrandCreate, CategoryCreate, ProductCreate, ProductUpdate, ProductVariantCreate, ProductVariantCreateList, ProductVariantUpdate, ProviderCreate
+from database.models.product import BranchCreate, BrandCreate, CategoryCreate, ProductCreate, ProductUpdate, ProductVariantCreateList, ProductVariantUpdate, ProviderCreate
 
 from services.product_s import (
     create_product_db,
     create_product_variant_db,
-    create_provider_db, 
     delete_product_db,
     delete_product_variant_db,
     get_product_variants_by_product_id_db,
@@ -19,10 +18,9 @@ from services.product_s import (
 # Crud operations for auxiliary tables
 from services.branch_s import create_branch_db, delete_branch_db, get_branches_all, update_branch_db
 from services.brand_s import create_brand_db, delete_brand_db, get_brands_all, update_brand_db
-from services.providers_s import delete_provider_db, get_providers_all, update_provider_db
+from services.providers_s import create_provider_db, delete_provider_db, get_providers_all, update_provider_db
 from services.category_s import delete_category_db, get_categories_all_db, update_category_db, create_category_db
 
-from services import auth_s
 
 def create_product(product: ProductCreate, session: Session):
     try:

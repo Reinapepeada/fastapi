@@ -225,13 +225,34 @@ def delete_product_variant_db(variant_id: int, session):
 def persist_product_images(images, variant_id, session):
     try:
         ensure_product_variant_exists(variant_id, session)
-        for urlImage in images:
-            session.add(ProductImage(image_url=str(urlImage),variant_id=variant_id))
+        for url_img in images:
+            session.add(ProductImage(image_url=str(url_img),variant_id=variant_id))
             session.commit()
     except Exception as e:
         session.rollback()
         raise e
-    
+
+def add_stock_product_variant(variant_id, quantity, session):
+    try:
+        db_variant = ensure_product_variant_exists(variant_id, session)
+        db_variant.stock += quantity
+        session.commit()
+    except Exception as e:
+        session.rollback()
+        raise e
+    return db_variant
+
+def reduce_stock_product_variant(variant_id, quantity, session):
+    try:
+        db_variant = ensure_product_variant_exists(variant_id, session)
+        if db_variant.stock < quantity:
+            raise ValueError("No hay suficiente stock para realizar la venta")
+        db_variant.stock -= quantity
+        session.commit()
+    except Exception as e:
+        session.rollback()
+        raise e
+    return db_variant
 
 def generate_barcode(sku: str):
     barcode = Code128(sku, writer=ImageWriter())
@@ -249,40 +270,3 @@ def generate_qr_code(sku: str):
     qr.make(fit=True)
     img = qr.make_image(fill="black", back_color="white")
     img.save(f"qrcodes/{sku}.png")
-
-
-def create_category_db(category, session):
-    try:
-        db_category = Category(name=category.name, description=category.description)
-        session.add(db_category)
-        session.commit()
-        session.refresh(db_category)
-    except Exception as e:
-        session.rollback()
-        raise e
-    return db_category
-
-
-def get_categories_all_db(session):
-    categories = session.exec(select(Category)).all()
-    return categories
-
-
-def create_provider_db(provider, session):
-    try:
-        db_provider = Provider(
-            name=provider.name,
-            contact_info=provider.contact_info,
-        )
-        session.add(db_provider)
-        session.commit()
-        session.refresh(db_provider)
-    except Exception as e:
-        session.rollback()
-        raise e
-    return db_provider
-
-
-def get_provider_all(session):
-    providers = session.exec(select(Provider)).all()
-    return providers

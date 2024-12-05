@@ -1,3 +1,4 @@
+import random
 from fastapi.testclient import TestClient
 from main import app
 import pytest
@@ -6,7 +7,7 @@ client = TestClient(app)
 
 # Datos de prueba para productos
 product_create_data = {
-    "serial_number": "SNdsadas35",
+    "serial_number": str(random.randint(1, 1000)),
     "name": "Product Test gkgjk",
     "description": "This is a test product",
     "brand_id": 1,
@@ -21,7 +22,7 @@ product_create_data = {
 }
 
 product_update_data = {
-    "name": "Product Test Updated",
+    "name": str(random.randint(1, 1000)),
     "description": "This is a test product",
     "brand_id": 1,
     "warranty_time": 12,
@@ -143,19 +144,19 @@ def test_update_product_variant():
     assert variant["size_unit"] == variant_update_data["size_unit"]
 
 
-# def test_delete_product_variant():
-#     global variant_id
-#     assert variant_id is not None, "Variant ID no disponible para eliminar"
-#     response = client.delete(f"/products/delete/variant?variant_id={variant_id}")
-#     assert response.status_code == 200
-#     result = response.json()
-#     assert result["msg"] == "Variant deleted successfully"
+def test_delete_product_variant():
+    global variant_id
+    assert variant_id is not None, "Variant ID no disponible para eliminar"
+    response = client.delete(f"/products/delete/variant?variant_id={variant_id}")
+    assert response.status_code == 200
+    result = response.json()
+    assert result["msg"] == "Variant deleted successfully"
 
 
-# def test_delete_product():
-#     global product_id
-#     assert product_id is not None, "Product ID no disponible para eliminar"
-#     response = client.delete(f"/products/delete?product_id={product_id}")
-#     assert response.status_code == 200
-#     result = response.json()
-#     assert result["msg"] == "Product deleted successfully"
+def test_delete_product():
+    global product_id
+    assert product_id is not None, "Product ID no disponible para eliminar"
+    response = client.delete(f"/products/delete?product_id={product_id}")
+    assert response.status_code == 200
+    result = response.json()
+    assert result["msg"] == "Product deleted successfully"

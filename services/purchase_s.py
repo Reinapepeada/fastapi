@@ -7,6 +7,7 @@ from database.models.purchase import (
     UpdatePurchase,
     UpdatePurchaseItem
 )
+from services.product_s import add_stock_product_variant
 
 
 
@@ -22,6 +23,8 @@ def ensure_purchase_item_exists(item_id: int, session):
     if not item:
         raise HTTPException(status_code=404, detail="Item not found")
     return item
+
+
 
 def create_purchase_db(session , purchase: CreatePurchase) -> Purchase:
     try:
@@ -49,6 +52,7 @@ def create_purchase_db(session , purchase: CreatePurchase) -> Purchase:
             session.add(purchase_item)
             session.commit()
             session.refresh(purchase_item)
+            add_stock_product_variant(session, item.productvariant_id, item.quantity)
         return db_purchase
     except Exception as e:
         session.rollback()
@@ -66,6 +70,8 @@ def update_purchase_db(session, purchase:UpdatePurchase, purchase_id):
                 db_item = ensure_purchase_item_exists(item.id, session)
                 for key, value in item.model_dump(exclude_unset=True).items():
                     setattr(db_item, key, value)
+                
+                
         session.commit()
         session.refresh(db_purchase)
         return db_purchase

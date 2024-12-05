@@ -1,3 +1,4 @@
+import random
 from fastapi.testclient import TestClient
 from main import app  # Asegúrate de importar correctamente tu aplicación principal
 import pytest
@@ -6,7 +7,7 @@ client = TestClient(app)
 
 # Datos de prueba para Branches
 branch_create_data = {
-    "name": "Test Branch",
+    "name": str(random.randint(1, 1000)),
     "location": "123 Test Street, Test City"
 }
 
@@ -17,11 +18,11 @@ branch_update_data = {
 
 # Datos de prueba para Brands
 brand_create_data = {
-    "name": "Test Brand",
+    "name": "str(random.randint(1, 1000))",
 }
 
 brand_update_data = {
-    "name": "Updated Test Brand",
+    "name": "str(random.randint(1, 1000))",
 }
 
 # Variables globales para IDs dinámicos
@@ -96,12 +97,12 @@ def test_delete_brand():
 
 # Mock data
 provider_create_data = {
-    "name": "Test Provider",
+    "name": str(random.randint(1, 1000)),
     "contact_info": "test@provider.com"
 }
 
 provider_update_data = {
-    "name": "Updated Provider",
+    "name": str(random.randint(1, 1000)),
     "contact": "updated@provider.com",
 }
 
@@ -139,10 +140,10 @@ def test_delete_provider():
 
 
 # Mock data
-category_create_data = {"name": "Test Category",
-                 "description": "Test Description"}
+category_create_data = {"name": str(random.randint(1, 1000)),
+                 "description": str(random.randint(1, 1000))}
 
-category_update_data = {"name": "Updated Category",
+category_update_data = {"name": str(random.randint(1, 1000)),
                          "description": "Updated Description"}
 
 category_id=None
