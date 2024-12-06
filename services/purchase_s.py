@@ -1,4 +1,5 @@
 from fastapi import HTTPException
+from sqlmodel import select
 from database.models.purchase import (
     CreatePurchase,
     CreatePurchaseItem,
@@ -8,6 +9,7 @@ from database.models.purchase import (
     UpdatePurchaseItem
 )
 from services.product_s import add_stock_product_variant, reduce_stock_product_variant
+from services.providers_s import ensure_provider_exists
 
 
 
@@ -26,10 +28,11 @@ def ensure_purchase_item_exists(item_id: int, session):
 
 
 
-def create_purchase_db(session , purchase: CreatePurchase) -> Purchase:
+def create_purchase_db(session , purchase: CreatePurchase) :
     try:
         items = purchase.items
         total_price = 0
+        ensure_provider_exists(purchase.provider_id, session)
         for item in items:
             total_price += item.cost * item.quantity
         db_purchase = Purchase(
@@ -107,7 +110,7 @@ def get_purchase_by_id_db(session, purchase_id):
     
 def get_purchases_all_db(session):
     try:
-        purchases = session.query(Purchase).all()
+        purchases = session.exec(select(Purchase)).all()
         return purchases
     except Exception as e:
         session.rollback()

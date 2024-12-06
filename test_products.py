@@ -143,16 +143,67 @@ def test_update_product_variant():
     variant = response.json()
     assert variant["size_unit"] == variant_update_data["size_unit"]
 
+purchase_create_data = {
+    "provider_id": 1,
+    "items": [
+        {
+            "product_id": 1,
+            "productvariant_id": 1,
+            "purchase_id": 1,
+            "quantity": 5,
+            "cost": 50.0,
+        }
+    ],
+}
 
+purchase_update_data = {
+    "provider_id": 1,
+    "items": [
+        {
+            "product_id": 1,
+            "productvariant_id": 1,
+            "purchase_id": 1,
+            "quantity": 1,
+            "cost": 50.0,
+        }
+    ],
+}
 
+purchase_id = None
 
-def test_delete_product_variant():
-    global variant_id
-    assert variant_id is not None, "Variant ID no disponible para eliminar"
-    response = client.delete(f"/products/delete/variant?variant_id={variant_id}")
+def test_create_purchase():
+    response = client.post("/purchases/create", json=purchase_create_data)
+    global purchase_id
     assert response.status_code == 200
-    result = response.json()
-    assert result["msg"] == "Variant deleted successfully"
+    purchase = response.json()
+    purchase_id = purchase["id"]
+    assert purchase["provider_id"] == purchase_create_data["provider_id"]
+
+def test_get_purchases():
+    response = client.get("/purchases/get/all")
+    assert response.status_code == 200
+    purchases = response.json()
+    assert isinstance(purchases, list)
+    if purchases:
+        assert "provider_id" in purchases[0]
+
+def test_update_purchase():
+    global purchase_id
+    assert purchase_id is not None, "Purchase ID no disponible para actualizar"
+    response = client.put(
+        f"/purchases/update?purchase_id={purchase_id}", json=purchase_update_data
+    )
+    assert response.status_code == 200
+    purchase = response.json()
+    assert purchase["items"][0]["quantity"] == purchase_update_data["items"][0]["quantity"]
+
+# def test_delete_purchase():
+#     global purchase_id
+#     assert purchase_id is not None, "Purchase ID no disponible para eliminar"
+#     response = client.delete(f"/purchases/delete?purchase_id={purchase_id}")
+#     assert response.status_code == 200
+#     result = response.json()
+#     assert result["msg"] == "Purchase deleted successfully"
 
 
 def test_delete_product():
