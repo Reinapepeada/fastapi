@@ -147,7 +147,7 @@ purchase_create_data = {
     "provider_id": 1,
     "items": [
         {
-            "product_id": 1,
+            "product_id": 4,
             "productvariant_id": 1,
             "purchase_id": 1,
             "quantity": 5,
@@ -156,27 +156,19 @@ purchase_create_data = {
     ],
 }
 
-purchase_update_data = {
-    "provider_id": 1,
-    "items": [
-        {
-            "product_id": 1,
-            "productvariant_id": 1,
-            "purchase_id": 1,
-            "quantity": 1,
-            "cost": 50.0,
-        }
-    ],
-}
+
 
 purchase_id = None
+items_id_list = []
 
 def test_create_purchase():
     response = client.post("/purchases/create", json=purchase_create_data)
     global purchase_id
+    global items_id_list
     assert response.status_code == 200
     purchase = response.json()
     purchase_id = purchase["id"]
+    items_id_list = [item["id"] for item in purchase["items"]]
     assert purchase["provider_id"] == purchase_create_data["provider_id"]
 
 def test_get_purchases():
@@ -190,11 +182,20 @@ def test_get_purchases():
 def test_update_purchase():
     global purchase_id
     assert purchase_id is not None, "Purchase ID no disponible para actualizar"
+    purchase_update_data = {
+        "items": [
+            {
+                "id": items_id_list[0],
+                "quantity": 10,
+            }
+        ]
+    }
     response = client.put(
         f"/purchases/update?purchase_id={purchase_id}", json=purchase_update_data
     )
     assert response.status_code == 200
     purchase = response.json()
+    print(purchase)
     assert purchase["items"][0]["quantity"] == purchase_update_data["items"][0]["quantity"]
 
 # def test_delete_purchase():

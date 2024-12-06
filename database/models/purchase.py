@@ -41,14 +41,17 @@ class CreatePurchase(BaseModel):
     items: List[CreatePurchaseItem]
 
 class UpdatePurchaseItem(BaseModel):
-    quantity: Optional[int]
-    cost: Optional[float]
+    id: int
+    quantity: Optional[int] = None
+    cost: Optional[float] = None
     # total_cost: Optional[float] hacer calculo en backend
 
 class UpdatePurchase(BaseModel):
     provider_id: Optional[int] = None
-    total_price: Optional[float] = None 
     items: Optional[List[UpdatePurchaseItem]] = None
+
+    class ConfigDict:
+        from_attributes = True
 
 class PurchaseItemResponse(BaseModel):
     id: int
@@ -57,7 +60,6 @@ class PurchaseItemResponse(BaseModel):
     quantity: int
     cost: float
     total_cost: float
-
 
 class PurchaseResponse(BaseModel):
     id: int

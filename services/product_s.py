@@ -247,7 +247,7 @@ def reduce_stock_product_variant(variant_id, quantity, session):
         db_variant = ensure_product_variant_exists(variant_id, session)
         if db_variant.stock < quantity:
             raise ValueError("No hay suficiente stock para realizar la venta")
-        db_variant.stock -= quantity
+        db_variant.stock = db_variant.stock - quantity
         session.commit()
     except Exception as e:
         session.rollback()
