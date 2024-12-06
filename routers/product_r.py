@@ -1,5 +1,5 @@
-from fastapi import APIRouter, Header
-from typing import Annotated, List
+from fastapi import APIRouter
+from typing import List
 from fastapi import Query
 from database.connection.SQLConection import SessionDep
 from database.models.product import (

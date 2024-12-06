@@ -7,7 +7,7 @@ from database.models.purchase import (
     UpdatePurchase,
     UpdatePurchaseItem
 )
-from services.product_s import add_stock_product_variant
+from services.product_s import add_stock_product_variant, reduce_stock_product_variant
 
 
 
@@ -69,9 +69,13 @@ def update_purchase_db(session, purchase:UpdatePurchase, purchase_id):
             for item in purchase.items:
                 db_item = ensure_purchase_item_exists(item.id, session)
                 for key, value in item.model_dump(exclude_unset=True).items():
-                    setattr(db_item, key, value)
-                
-                
+                    setattr(db_item, key, value)                
+                # update stock
+                if item.quantity > db_item.quantity:
+                    add_stock_product_variant(session, db_item.productvariant_id, item.quantity - db_item.quantity)
+                elif item.quantity < db_item.quantity:
+                    reduce_stock_product_variant(session, db_item.productvariant_id, db_item.quantity - item.quantity)
+
         session.commit()
         session.refresh(db_purchase)
         return db_purchase
@@ -82,6 +86,9 @@ def update_purchase_db(session, purchase:UpdatePurchase, purchase_id):
 def delete_purchase_db(session, purchase_id):
     try:
         db_purchase = ensure_purchase_exists(purchase_id, session)
+        # reduce stock
+        for item in db_purchase.items:
+            reduce_stock_product_variant(session, item.productvariant_id, item.quantity)
         session.delete(db_purchase)
         session.commit()
         return {"msg": "Purchase deleted successfully"}

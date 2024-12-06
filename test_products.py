@@ -144,6 +144,8 @@ def test_update_product_variant():
     assert variant["size_unit"] == variant_update_data["size_unit"]
 
 
+
+
 def test_delete_product_variant():
     global variant_id
     assert variant_id is not None, "Variant ID no disponible para eliminar"
