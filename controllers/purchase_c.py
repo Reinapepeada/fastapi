@@ -3,10 +3,9 @@ from sqlmodel import Session
 
 from database.models.purchase import (
     CreatePurchase,
-    CreatePurchaseItem,
     UpdatePurchase
 )
-from services.purchase_s import create_purchase_db, create_purchase_item_db, delete_purchase_db, delete_purchase_item_db, get_purchase_by_id_db, get_purchases_all_db, update_purchase_db, update_purchase_item_db
+from services.purchase_s import create_purchase_db, delete_purchase_db, get_purchase_by_id_db, get_purchases_all_db, update_purchase_db
 
 def create_purchase(purchase: CreatePurchase, session: Session):
     try:
@@ -38,24 +37,4 @@ def get_purchases_all(session: Session):
     except Exception as e:
         return HTTPException(status_code=400, detail=str(e))
     
-    
-# purchase item controller
-
-def create_purchase_item(item: CreatePurchaseItem, session: Session):
-    try:
-        return create_purchase_item_db(item=item, session=session)
-    except Exception as e:
-        return HTTPException(status_code=400, detail=str(e))
-    
-def update_purchase_item(item_id: int, item: CreatePurchaseItem, session: Session):
-    try:
-        return update_purchase_item_db(item_id=item_id, item=item, session=session)
-    except Exception as e:
-        return HTTPException(status_code=400, detail=str(e))
-
-def delete_purchase_item(item_id: int, session: Session):
-    try:
-        return delete_purchase_item_db(item_id=item_id, session=session)
-    except Exception as e:
-        return HTTPException(status_code=400, detail=str(e))
 

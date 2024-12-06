@@ -96,7 +96,7 @@ def delete_purchase_db(session, purchase_id):
         db_purchase = ensure_purchase_exists(purchase_id, session)
         # reduce stock
         for item in db_purchase.items:
-            reduce_stock_product_variant(session, item.productvariant_id, item.quantity)
+            reduce_stock_product_variant(session=session,variant_id= item.productvariant_id,quantity=item.quantity)
         session.delete(db_purchase)
         session.commit()
         return {"msg": "Purchase deleted successfully"}

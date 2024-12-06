@@ -1,12 +1,9 @@
 from fastapi import APIRouter
-from controllers.purchase_c import create_purchase, create_purchase_item, delete_purchase, delete_purchase_item, get_purchase_by_id, get_purchases_all, update_purchase, update_purchase_item
+from controllers.purchase_c import create_purchase, delete_purchase, get_purchase_by_id, get_purchases_all, update_purchase
 from database.models.purchase import (
     CreatePurchase, 
-    CreatePurchaseItem, 
     UpdatePurchase, 
-    UpdatePurchaseItem,
     PurchaseResponse,
-    PurchaseItemResponse
     )
 from database.connection.SQLConection import SessionDep
 from typing import List
@@ -38,7 +35,7 @@ def delete_purchase_endp(
     purchase_id: int,
     session: SessionDep = SessionDep
 ):
-    return delete_purchase(purchase_id, session)
+    return delete_purchase(purchase_id=purchase_id, session=session)
 
 @router.get("/get{purchase_id}")
 def get_purchase_by_id_endp(
@@ -52,28 +49,6 @@ def get_purchases_all_endp(
     session: SessionDep = SessionDep
 )-> List[PurchaseResponse]:
     return get_purchases_all(session)
-
-@router.post("/create/item")
-def create_purchase_item_endp(
-    item: CreatePurchaseItem,
-    session: SessionDep = SessionDep
-)-> PurchaseItemResponse:
-    return create_purchase_item(item, session)
-
-@router.put("/update/item{item_id}")
-def update_purchase_item_endp(
-    item_id: int,
-    item: UpdatePurchaseItem,
-    session: SessionDep = SessionDep
-)-> PurchaseItemResponse:
-    return update_purchase_item(item_id, item, session)
-
-@router.delete("/delete/item{item_id}")
-def delete_purchase_item_endp(
-    item_id: int,
-    session: SessionDep = SessionDep
-):
-    return delete_purchase_item(item_id, session)
 
 
 

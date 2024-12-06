@@ -10,7 +10,7 @@ class Purchase(SQLModel, table=True):
     total_price: float = Field(nullable=False)
 
     provider: Optional["Provider"] = Relationship(back_populates="purchases")
-    items: List["PurchaseItem"] = Relationship(back_populates="purchase")
+    items: List["PurchaseItem"] = Relationship(back_populates="purchase",cascade_delete=True)
 
 class PurchaseItem(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
