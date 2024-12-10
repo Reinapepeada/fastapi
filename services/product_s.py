@@ -1,5 +1,6 @@
 import uuid
-
+from fastapi import HTTPException, status
+import psycopg2
 from sqlmodel import select
 from database.models.product import (
     Branch,
@@ -102,12 +103,23 @@ def create_product_db(product, session):
             session.refresh(db_product)
         else:
             raise HTTPException(
-                "El producto ya existe, use el endpoint de actualización para modificarlo."
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"El producto con serial {product.serial_number} ya existe.",
             )
+        
         return db_product
+    
+    except psycopg2.IntegrityError as e:
+        if "duplicate key value violates unique constraint" in str(e.orig):
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="No puedes crear dos productos con el mismo nombre en la misma categoría y proveedor.",
+            )
     except Exception as e:
-        session.rollback()
-        raise RuntimeError(f"Error al crear producto: {e}")
+        raise HTTPException(
+            status_code=500,
+            detail=f"Ocurrió un error inesperado: {str(e)}"
+        )
 
 
 def get_products_all_db(session):
