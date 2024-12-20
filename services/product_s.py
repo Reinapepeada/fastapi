@@ -156,6 +156,19 @@ def delete_product_db(product_id: int, session):
         raise e
     return {"msg": "Product deleted successfully"}
 
+def ensure_unique_constraints_product_variant(product_id, color, size, size_unit, unit, session):
+    variant = session.exec(
+        select(ProductVariant).where(
+            (ProductVariant.product_id == product_id)
+            & (ProductVariant.color == color)
+            & (ProductVariant.size == size)
+            & (ProductVariant.size_unit == size_unit)
+            & (ProductVariant.unit == unit)
+        )
+    ).first()
+    if variant:
+        raise ValueError("Ya existe una variante con las mismas de color, tamaño y unidad.")
+    return variant
 
 def create_product_variant_db(product_variants, session):
     """Crea variantes para un producto existente."""
@@ -165,6 +178,16 @@ def create_product_variant_db(product_variants, session):
             # Validar existencia de producto y sucursal
             db_product = ensure_product_exists_id(variant.product_id, session)
             ensure_branch_exists(variant.branch_id, session)
+            
+            # Validar unicidad de variantes
+            ensure_unique_constraints_product_variant(
+                variant.product_id,
+                variant.color,
+                variant.size,
+                variant.size_unit,
+                variant.unit,
+                session,
+            )
 
             # Generar SKU
             sku = generate_sku(
