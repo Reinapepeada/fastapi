@@ -60,7 +60,7 @@ def delete_product_endp(
 def create_product_variant_endp(
     variant: ProductVariantCreateList,
     session: SessionDep = SessionDep
-)-> list[ProductVariantOut]:
+):
     return create_product_variant(variant, session)
 
 @router.get("/get/variant")
