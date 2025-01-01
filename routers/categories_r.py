@@ -13,7 +13,7 @@ router = APIRouter()
 def create_category_endp(
     category: CategoryCreate,
     session: SessionDep = SessionDep
-)-> CategoryOut:
+):
     return create_category(category, session)
 
 @router.get("/get/all")
@@ -34,5 +34,5 @@ def update_category_endp(
     category_id: int,
     category: CategoryCreate,
     session: SessionDep = SessionDep
-)-> CategoryOut:
+):
     return update_category(category_id, category, session)

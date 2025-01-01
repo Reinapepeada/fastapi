@@ -29,7 +29,9 @@ class Category(SQLModel, table=True):
 class Provider(SQLModel, table=True):
     id: int|None = Field(default=None, primary_key=True)
     name: str = Field(index=True, unique=True, nullable=False)
-    contact_info: str|None
+    email: str|None = Field(nullable=True)
+    phone: str|None = Field(nullable=True)
+    address: str|None = Field(nullable=True)
     created_at: datetime = Field(default_factory=datetime.now)
 
     purchases: List["Purchase"] = Relationship(back_populates="provider")
@@ -309,19 +311,25 @@ class CategoryOut(BaseModel):
 
 class ProviderCreate(BaseModel):
     name: str
-    contact_info: str|None
+    email: str|None=None
+    phone: str|None=None
+    address: str|None=None
 
     class ConfigDict:
         from_attributes = True
 
 class ProviderUpdate(BaseModel):
     name: str|None=None
-    contact_info: str|None=None
+    email: str|None=None
+    phone: str|None=None
+    address: str|None=None
 
 class ProviderOut(BaseModel):
     id: int
     name: str
-    contact_info: str|None
+    email: str|None
+    phone: str|None
+    address: str|None
     created_at: datetime
 
     class ConfigDict:

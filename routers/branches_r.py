@@ -13,7 +13,7 @@ router = APIRouter()
 def create_branch_endp(
     branch: BranchCreate,
     session: SessionDep = SessionDep
-)-> BranchOut:
+):
     return create_branch(branch, session)
 
 @router.get("/get/all")
@@ -34,5 +34,5 @@ def update_branch_endp(
     branch_id: int,
     branch: BranchCreate,
     session: SessionDep = SessionDep
-)-> BranchOut:
+):
     return update_branch(branch_id, branch, session)

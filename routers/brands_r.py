@@ -13,7 +13,7 @@ router = APIRouter()
 def create_brand_endp(
     brand: BrandCreate,
     session: SessionDep = SessionDep
-)-> BrandOut:
+):
     return create_brand(brand, session)
 
 @router.get("/get/all")
@@ -34,5 +34,5 @@ def update_brand_endp(
     brand_id: int,
     brand: BrandCreate,
     session: SessionDep = SessionDep
-)-> BrandOut:
+):
     return update_brand(brand_id, brand, session)

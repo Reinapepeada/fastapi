@@ -13,7 +13,7 @@ router = APIRouter()
 def create_provider_endp(
     provider: ProviderCreate,
     session: SessionDep = SessionDep
-)-> ProviderOut:
+):
     return create_provider(provider, session)
 
 @router.get("/get/all")

@@ -8,8 +8,15 @@ def ensure_brand_exists(brand_id: int, session):
         raise ValueError(f"brand with id {brand_id} does not exist")
     return brand
 
+def unique_constraint_brand(brand: BrandCreate, session):
+    brand = session.exec(select(Brand).where(Brand.name == brand.name)).first()
+    if brand:
+        raise ValueError(f"marca con el nombre '{brand.name}' ya existe")
+    return True
+
 def create_brand_db(brand: BrandCreate, session):
     try:
+        unique_constraint_brand(brand, session)
         db_brand = Brand(
             name=brand.name,
             
