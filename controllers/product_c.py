@@ -9,6 +9,7 @@ from services.product_s import (
     create_product_variant_db,
     delete_product_db,
     delete_product_variant_db,
+    get_product_by_id_db,
     get_product_variants_by_product_id_db,
     get_products_all_db,
     update_product_db,
@@ -34,6 +35,28 @@ def get_products_all(session: Session):
     except Exception as e:
         return HTTPException(status_code=400, detail=str(e))
 
+
+from services.product_s import fetch_products_with_pagination
+
+
+async def get_paginated_products_controller(
+    session: Session, page: int, size: int
+):
+    products, total_count = await fetch_products_with_pagination(session, page, size)
+    return {
+        "products": products,
+        "total": total_count,
+        "page": page,
+        "size": size,
+        "pages": (total_count + size - 1) // size,  # Calculate total pages
+    }
+
+def get_products_by_id(product_id: int, session: Session):
+    try:
+        return get_product_by_id_db(session, product_id)
+    except Exception as e:
+        return HTTPException(status_code=400, detail=str(e))
+    
 def update_product(product_id: int, product: ProductUpdate, session: Session):
     try:
         product_variants=update_product_db(product_id, product, session)

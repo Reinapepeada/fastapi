@@ -3,7 +3,8 @@ from typing import Annotated, List
 from fastapi import Query
 from database.connection.SQLConection import SessionDep
 from database.models.product import (
-    ProductCreate, 
+    ProductCreate,
+    ProductOutPaginated, 
     ProductUpdate, 
     ProductOut,
     ProductVariantCreateList, 
@@ -14,15 +15,16 @@ from controllers.product_c import (
     create_product,
     create_product_variant,
     delete_product, delete_product_variant,
+    get_paginated_products_controller,
     get_product_variants_by_product_id,
-    get_products_all, update_product, update_product_variant
+    get_products_by_id, update_product, update_product_variant
 )
 
 router = APIRouter()
 
-@router.get("/")
-def read_root():
-    return {"msg": "Welcome to team celular product's API!"}
+# @router.get("/")
+# def read_root():
+#     return {"msg": "Welcome to team celular product's API!"}
 
 # product endpoints
 
@@ -32,11 +34,20 @@ def create_product_endp(
     session: SessionDep = SessionDep):
     return create_product(product, session)
 
-@router.get("/get")
-def get_products_endp(
+@router.get("/get/{product_id}")
+def get_products_all_endp(
+    product_id: int,
     session: SessionDep = SessionDep
-)-> List[ProductOut]:
-    return get_products_all(session)
+):
+    return get_products_by_id(product_id, session)
+
+@router.get("/")
+async def get_paginated_products(
+    page: int = Query(1, ge=1, description="Page number, starting from 1"),
+    size: int = Query(10, ge=1, le=100, description="Number of items per page"),
+    session: SessionDep = SessionDep,
+)-> ProductOutPaginated:
+    return await get_paginated_products_controller(session, page, size)
 
 @router.put("/update")
 def update_product_endp(

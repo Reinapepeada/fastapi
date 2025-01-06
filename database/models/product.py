@@ -189,13 +189,13 @@ class ProductVariantCreate(BaseModel):
     min_stock: int=None
     images: Optional[List[str]] = None
 
-    class ConfigDict:
+    class Config:
         from_attributes = True
 
 class ProductVariantCreateList(BaseModel):
     variants: List[ProductVariantCreate]
     
-    class ConfigDict:
+    class Config:
         from_attributes = True
 
 
@@ -214,7 +214,7 @@ class ProductImageOut(BaseModel):
     image_url: str
     created_at: datetime
 
-    class ConfigDict:
+    class Config:
         from_attributes = True
 
 class ProductVariantOut(BaseModel):
@@ -231,7 +231,7 @@ class ProductVariantOut(BaseModel):
     updated_at: datetime
     images: Optional[List[ProductImageOut]] = None
 
-    class ConfigDict:
+    class Config:
         from_attributes = True
 
 class ProductCreate(BaseModel):
@@ -264,7 +264,7 @@ class ProductUpdate(BaseModel):
     category_id: Optional[int] = None
     provider_id: Optional[int] = None
 
-    class ConfigDict:
+    class Config:
         from_attributes = True
     
 
@@ -279,20 +279,32 @@ class ProductOut(BaseModel):
     cost: float
     wholesale_price: float
     retail_price: float
-    status: ProductStatus 
-    category_id: int|None
-    provider_id: int|None
+    status: ProductStatus
+    category:Category
+    provider:Provider
+    brand: Brand
+    created_at: datetime
+    updated_at: datetime
     variants: Optional[List[ProductVariantOut]] = None
 
-    class ConfigDict:
+    class Config:
         from_attributes = True
+    
+
+# clase que hereda de product out
+class ProductOutPaginated(BaseModel):
+    products: List[ProductOut]
+    total: int
+    page: int
+    size: int
+    pages: int
 
 
 class CategoryCreate(BaseModel):
     name: str
     description: str|None
 
-    class ConfigDict:
+    class Config:
         from_attributes = True
 
 class CategoryUpdate(BaseModel):
@@ -305,7 +317,7 @@ class CategoryOut(BaseModel):
     description: str|None
     created_at: datetime
 
-    class ConfigDict:
+    class Config:
         from_attributes = True
 
 
@@ -315,7 +327,7 @@ class ProviderCreate(BaseModel):
     phone: str|None=None
     address: str|None=None
 
-    class ConfigDict:
+    class Config:
         from_attributes = True
 
 class ProviderUpdate(BaseModel):
@@ -332,7 +344,7 @@ class ProviderOut(BaseModel):
     address: str|None
     created_at: datetime
 
-    class ConfigDict:
+    class Config:
         from_attributes = True
 
 
@@ -340,7 +352,7 @@ class BranchCreate(BaseModel):
     name: str
     location: str|None
 
-    class ConfigDict:
+    class Config:
         from_attributes = True
 
 class BranchUpdate(BaseModel):
@@ -353,13 +365,13 @@ class BranchOut(BaseModel):
     location: str|None
     created_at: datetime
 
-    class ConfigDict:
+    class Config:
         from_attributes = True
     
 class BrandCreate(BaseModel):
     name: str
 
-    class ConfigDict:
+    class Config:
         from_attributes = True
 
 class BrandOut(BaseModel):
@@ -367,5 +379,5 @@ class BrandOut(BaseModel):
     name: str
     created_at: datetime
 
-    class ConfigDict:
+    class Config:
         from_attributes = True

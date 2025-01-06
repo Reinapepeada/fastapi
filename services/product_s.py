@@ -1,3 +1,4 @@
+from typing import List
 import uuid
 from fastapi import HTTPException, status
 import psycopg2
@@ -7,6 +8,7 @@ from database.models.product import (
     Category,
     Product,
     ProductImage,
+    ProductOut,
     ProductUpdate,
     ProductVariant,
     ProductVariantUpdate,
@@ -125,6 +127,7 @@ def create_product_db(product, session):
 def get_products_all_db(session):
     try:
         products = session.exec(select(Product)).all()
+        print(products)
         return products
     except Exception as e:
         session.rollback()
@@ -145,6 +148,51 @@ def update_product_db(product_id: int, product: ProductUpdate, session):
         raise e
     return db_product
 
+
+from sqlalchemy.future import select
+from sqlalchemy.orm import selectinload
+from sqlalchemy.sql import func
+
+
+async def fetch_products_with_pagination(
+    session, page: int, size: int
+):
+    """
+    Fetch products with pagination.
+    :param session: Database session.
+    :param page: Page number (1-indexed).
+    :param size: Number of items per page.
+    :return: Tuple of products and total count.
+    """
+    total = session.execute(select(func.count(Product.id)))
+    total_count = total.scalar()
+    
+    result = session.execute(
+        select(Product)
+        .offset((page - 1) * size)
+        .limit(size)
+    )
+    products = result.scalars().all()
+    print(products)
+    for product in products:
+        variants=product.variants
+        for variant in variants:
+            images=variant.images
+            for image in images:
+                print(image.image_url)
+
+    
+
+    return products, total_count
+
+def get_product_by_id_db(session, product_id: int):
+    try:
+        db_product = ensure_product_exists_id(product_id, session)
+        print(db_product)
+        return db_product
+    except Exception as e:
+        session.rollback()
+        raise e
 
 def delete_product_db(product_id: int, session):
     try:
