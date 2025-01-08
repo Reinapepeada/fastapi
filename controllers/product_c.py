@@ -53,7 +53,8 @@ async def get_paginated_products_controller(
 
 def get_products_by_id(product_id: int, session: Session):
     try:
-        return get_product_by_id_db(session, product_id)
+        prod= get_product_by_id_db(session, product_id)
+        return prod
     except Exception as e:
         return HTTPException(status_code=400, detail=str(e))
     

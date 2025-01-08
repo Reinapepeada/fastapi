@@ -17,6 +17,7 @@ from controllers.product_c import (
     delete_product, delete_product_variant,
     get_paginated_products_controller,
     get_product_variants_by_product_id,
+    get_products_all,
     get_products_by_id, update_product, update_product_variant
 )
 
@@ -38,8 +39,14 @@ def create_product_endp(
 def get_products_all_endp(
     product_id: int,
     session: SessionDep = SessionDep
-):
-    return get_products_by_id(product_id, session)
+)-> ProductOut:
+    return  get_products_by_id(product_id, session)
+
+@router.get("/all")
+def get_products_all_endp(
+    session: SessionDep = SessionDep
+)-> List[ProductOut]:
+    return get_products_all(session)
 
 @router.get("/")
 async def get_paginated_products(
@@ -48,6 +55,7 @@ async def get_paginated_products(
     session: SessionDep = SessionDep,
 )-> ProductOutPaginated:
     return await get_paginated_products_controller(session, page, size)
+
 
 @router.put("/update")
 def update_product_endp(

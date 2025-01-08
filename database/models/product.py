@@ -273,7 +273,6 @@ class ProductOut(BaseModel):
     serial_number: str
     name: str
     description: str|None
-    brand_id: int|None
     warranty_time: int|None
     warranty_unit: WarrantyUnit |None
     cost: float

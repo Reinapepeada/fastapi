@@ -46,7 +46,7 @@ def ensure_product_exists_serial(product_serial: int, session):
 
 
 def ensure_product_exists_id(product_id: int, session):
-    product = session.exec(select(Product).where(Product.id == product_id)).first()
+    product = session.exec(select(Product).where(Product.id == product_id)).scalar()
     if not product:
         raise ValueError(f"Product with id {product_id} does not exist")
     return product
@@ -126,7 +126,7 @@ def create_product_db(product, session):
 
 def get_products_all_db(session):
     try:
-        products = session.exec(select(Product)).all()
+        products = session.exec(select(Product)).scalars().all()
         print(products)
         return products
     except Exception as e:
@@ -173,15 +173,7 @@ async def fetch_products_with_pagination(
         .limit(size)
     )
     products = result.scalars().all()
-    print(products)
-    for product in products:
-        variants=product.variants
-        for variant in variants:
-            images=variant.images
-            for image in images:
-                print(image.image_url)
-
-    
+    print(products)   
 
     return products, total_count
 
