@@ -23,14 +23,14 @@ from services.brand_s import ensure_brand_exists
 
 
 def ensure_category_exists(category_id: int, session):
-    category = session.exec(select(Category).where(Category.id == category_id)).first()
+    category = session.exec(select(Category).where(Category.id == category_id)).scalar()
     if not category:
         raise ValueError(f"Category with id {category_id} does not exist")
     return category
 
 
 def ensure_provider_exists(provider_id: int, session):
-    provider = session.exec(select(Provider).where(Provider.id == provider_id)).first()
+    provider = session.exec(select(Provider).where(Provider.id == provider_id)).scalar()
     if not provider:
         raise ValueError(f"Provider with id {provider_id} does not exist")
     return provider
@@ -39,7 +39,7 @@ def ensure_provider_exists(provider_id: int, session):
 def ensure_product_exists_serial(product_serial: int, session):
     product = session.exec(
         select(Product).where(Product.serial_number == product_serial)
-    ).first()
+    ).scalar()
     if not product:
         raise ValueError(f"Product with id {product_serial} does not exist")
     return product
@@ -55,7 +55,7 @@ def ensure_product_exists_id(product_id: int, session):
 def product_exists_serial(product_serial: int, session):
     product = session.exec(
         select(Product).where(Product.serial_number == product_serial)
-    ).first()
+    ).scalar()
     if not product:
         return False
     return True
@@ -64,7 +64,7 @@ def product_exists_serial(product_serial: int, session):
 def ensure_product_variant_exists(variant_id: int, session):
     variant = session.exec(
         select(ProductVariant).where(ProductVariant.id == variant_id)
-    ).first()
+    ).scalar()
     if not variant:
         raise ValueError(f"Product variant with id {variant_id} does not exist")
     return variant
