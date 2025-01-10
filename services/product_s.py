@@ -173,7 +173,6 @@ async def fetch_products_with_pagination(
         .limit(size)
     )
     products = result.scalars().all()
-    print(products)   
 
     return products, total_count
 
