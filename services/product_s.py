@@ -5,6 +5,7 @@ import psycopg2
 from sqlmodel import select
 from database.models.product import (
     Branch,
+    Brand,
     Category,
     Product,
     ProductImage,
@@ -165,21 +166,24 @@ async def fetch_products_with_filters(
     :param filters: Dictionary of filters.
     :return: Tuple of products and total count.
     """
-    query = select(Product)
+    query = select(Product).options(
+        selectinload(Product.category),
+        selectinload(Product.brand)
+    )
 
     # Apply filters
-    if filters["categories"]:
-        category_ids = [int(id_) for id_ in filters["categories"].split(",")]
-        query = query.where(Product.category_id.in_(category_ids))
+    if "categories" in filters and filters["categories"]:
+        category_names = [str(name) for name in filters["categories"].split(",")]
+        query = query.join(Product.category).where(Category.name.in_(category_names))
 
-    if filters["brands"]:
-        brand_ids = [int(id_) for id_ in filters["brands"].split(",")]
-        query = query.where(Product.brand_id.in_(brand_ids))
+    if "brands" in filters and filters["brands"]:
+        brand_names = [str(name) for name in filters["brands"].split(",")]
+        query = query.join(Product.brand).where(Brand.name.in_(brand_names))
 
-    if filters["min_price"] is not None:
+    if "min_price" in filters and filters["min_price"] is not None:
         query = query.where(Product.price >= filters["min_price"])
 
-    if filters["max_price"] is not None:
+    if "max_price" in filters and filters["max_price"] is not None:
         query = query.where(Product.price <= filters["max_price"])
 
     # Calculate total count
