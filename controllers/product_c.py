@@ -9,6 +9,7 @@ from services.product_s import (
     create_product_variant_db,
     delete_product_db,
     delete_product_variant_db,
+    fetch_products_with_filters,
     get_product_by_id_db,
     get_product_variants_by_product_id_db,
     get_products_all_db,
@@ -36,20 +37,18 @@ def get_products_all(session: Session):
         return HTTPException(status_code=400, detail=str(e))
 
 
-from services.product_s import fetch_products_with_pagination
-
-
-async def get_paginated_products_controller(
-    session: Session, page: int, size: int
+async def get_filtered_paginated_products_controller(
+    session: Session, page: int, size: int, filters: dict
 ):
-    products, total_count = await fetch_products_with_pagination(session, page, size)
+    products, total_count = await fetch_products_with_filters(session, page, size, filters)
     return {
         "products": products,
         "total": total_count,
         "page": page,
         "size": size,
-        "pages": (total_count + size - 1) // size,  # Calculate total pages
+        "pages": (total_count + size - 1) // size,
     }
+
 
 def get_products_by_id(product_id: int, session: Session):
     try:

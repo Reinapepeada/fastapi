@@ -154,27 +154,45 @@ from sqlalchemy.orm import selectinload
 from sqlalchemy.sql import func
 
 
-async def fetch_products_with_pagination(
-    session, page: int, size: int
+async def fetch_products_with_filters(
+    session, page: int, size: int, filters: dict
 ):
     """
-    Fetch products with pagination.
+    Fetch products with pagination and filters.
     :param session: Database session.
     :param page: Page number (1-indexed).
     :param size: Number of items per page.
+    :param filters: Dictionary of filters.
     :return: Tuple of products and total count.
     """
-    total = session.execute(select(func.count(Product.id)))
-    total_count = total.scalar()
-    
+    query = select(Product)
+
+    # Apply filters
+    if filters["categories"]:
+        category_ids = [int(id_) for id_ in filters["categories"].split(",")]
+        query = query.where(Product.category_id.in_(category_ids))
+
+    if filters["brands"]:
+        brand_ids = [int(id_) for id_ in filters["brands"].split(",")]
+        query = query.where(Product.brand_id.in_(brand_ids))
+
+    if filters["min_price"] is not None:
+        query = query.where(Product.price >= filters["min_price"])
+
+    if filters["max_price"] is not None:
+        query = query.where(Product.price <= filters["max_price"])
+
+    # Calculate total count
+    total_query = select(func.count()).select_from(query.subquery())
+    total = session.execute(total_query).scalar()
+
+    # Fetch paginated products
     result = session.execute(
-        select(Product)
-        .offset((page - 1) * size)
-        .limit(size)
+        query.offset((page - 1) * size).limit(size)
     )
     products = result.scalars().all()
 
-    return products, total_count
+    return products, total
 
 def get_product_by_id_db(session, product_id: int):
     try:

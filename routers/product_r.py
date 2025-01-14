@@ -1,5 +1,5 @@
 from fastapi import APIRouter,status, HTTPException
-from typing import Annotated, List
+from typing import Annotated, List, Optional
 from fastapi import Query
 from database.connection.SQLConection import SessionDep
 from database.models.product import (
@@ -15,7 +15,7 @@ from controllers.product_c import (
     create_product,
     create_product_variant,
     delete_product, delete_product_variant,
-    get_paginated_products_controller,
+    get_filtered_paginated_products_controller,
     get_product_variants_by_product_id,
     get_products_all,
     get_products_by_id, update_product, update_product_variant
@@ -49,13 +49,23 @@ def get_products_all_endp(
     return get_products_all(session)
 
 @router.get("/")
-async def get_paginated_products(
+async def get_filtered_paginated_products(
     page: int = Query(1, ge=1, description="Page number, starting from 1"),
     size: int = Query(10, ge=1, le=100, description="Number of items per page"),
+    categories: Optional[str] = Query(None, description="Comma-separated category IDs"),
+    brands: Optional[str] = Query(None, description="Comma-separated brand IDs"),
+    min_price: Optional[float] = Query(None, ge=0, description="Minimum price"),
+    max_price: Optional[float] = Query(None, ge=0, description="Maximum price"),
     session: SessionDep = SessionDep,
-)-> ProductOutPaginated:
-    return await get_paginated_products_controller(session, page, size)
-
+) -> ProductOutPaginated:
+    filters = {
+        "categories": categories,
+        "brands": brands,
+        "min_price": min_price,
+        "max_price": max_price,
+    }
+    print(filters)
+    return await get_filtered_paginated_products_controller(session, page, size, filters)
 
 @router.put("/update")
 def update_product_endp(
@@ -71,8 +81,6 @@ def delete_product_endp(
     session: SessionDep = SessionDep
 ):
     return delete_product(product_id, session)
-
-
 
 # endpoints for product variants
 @router.post("/create/variant")
