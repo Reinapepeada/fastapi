@@ -158,19 +158,11 @@ from sqlalchemy.sql import func
 async def fetch_products_with_filters(
     session, page: int, size: int, filters: dict
 ):
-    """
-    Fetch products with pagination and filters.
-    :param session: Database session.
-    :param page: Page number (1-indexed).
-    :param size: Number of items per page.
-    :param filters: Dictionary of filters.
-    :return: Tuple of products and total count.
-    """
     query = select(Product).options(
         selectinload(Product.category),
         selectinload(Product.brand)
     )
-
+    print(filters)
     # Apply filters
     if "categories" in filters and filters["categories"]:
         category_names = [str(name) for name in filters["categories"].split(",")]
@@ -180,11 +172,10 @@ async def fetch_products_with_filters(
         brand_names = [str(name) for name in filters["brands"].split(",")]
         query = query.join(Product.brand).where(Brand.name.in_(brand_names))
 
-    if "min_price" in filters and filters["min_price"] is not None:
-        query = query.where(Product.price >= filters["min_price"])
-
-    if "max_price" in filters and filters["max_price"] is not None:
-        query = query.where(Product.price <= filters["max_price"])
+    if ("min_price" in filters and filters["min_price"] is not None) or ("max_price" in filters and filters["max_price"] is not None):
+        min_price = filters.get("min_price", 0)
+        max_price = filters.get("max_price", float('inf'))
+        query = query.where(Product.retail_price.between(min_price, max_price))
 
     # Calculate total count
     total_query = select(func.count()).select_from(query.subquery())
@@ -197,6 +188,15 @@ async def fetch_products_with_filters(
     products = result.scalars().all()
 
     return products, total
+
+def get_max_min_price_db(session):
+    try:
+        result = session.exec(select(func.max(Product.retail_price), func.min(Product.retail_price))).one()
+        max_price, min_price = result
+        return max_price, min_price
+    except Exception as e:
+        session.rollback()
+        raise e
 
 def get_product_by_id_db(session, product_id: int):
     try:

@@ -18,7 +18,8 @@ from controllers.product_c import (
     get_filtered_paginated_products_controller,
     get_product_variants_by_product_id,
     get_products_all,
-    get_products_by_id, update_product, update_product_variant
+    get_products_by_id, update_product, update_product_variant,
+    get_min_max_price
 )
 
 router = APIRouter()
@@ -54,18 +55,23 @@ async def get_filtered_paginated_products(
     size: int = Query(10, ge=1, le=100, description="Number of items per page"),
     categories: Optional[str] = Query(None, description="Comma-separated category IDs"),
     brands: Optional[str] = Query(None, description="Comma-separated brand IDs"),
-    min_price: Optional[float] = Query(None, ge=0, description="Minimum price"),
-    max_price: Optional[float] = Query(None, ge=0, description="Maximum price"),
+    minPrice: Optional[float] = Query(None, ge=0, description="Minimum price"),
+    maxPrice: Optional[float] = Query(None, ge=0, description="Maximum price"),
     session: SessionDep = SessionDep,
 ) -> ProductOutPaginated:
     filters = {
         "categories": categories,
         "brands": brands,
-        "min_price": min_price,
-        "max_price": max_price,
+        "min_price": minPrice,
+        "max_price": maxPrice,
     }
-    print(filters)
     return await get_filtered_paginated_products_controller(session, page, size, filters)
+
+@router.get("/min-max-price")
+def get_max_min_price_endp(
+    session: SessionDep = SessionDep
+):
+    return get_min_max_price(session)
 
 @router.put("/update")
 def update_product_endp(

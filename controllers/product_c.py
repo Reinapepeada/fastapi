@@ -10,6 +10,7 @@ from services.product_s import (
     delete_product_db,
     delete_product_variant_db,
     fetch_products_with_filters,
+    get_max_min_price_db,
     get_product_by_id_db,
     get_product_variants_by_product_id_db,
     get_products_all_db,
@@ -49,6 +50,12 @@ async def get_filtered_paginated_products_controller(
         "pages": (total_count + size - 1) // size,
     }
 
+def get_min_max_price(session: Session):
+    try:
+        max, min = get_max_min_price_db(session)
+        return {"max": str(max), "min": str(min)}
+    except Exception as e:
+        return HTTPException(status_code=400, detail=str(e))
 
 def get_products_by_id(product_id: int, session: Session):
     try:
