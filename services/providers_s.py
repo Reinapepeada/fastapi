@@ -9,20 +9,21 @@ def ensure_provider_exists(provider_id: int, session):
     return provider
 
 def unique_constraint_provider(provider: ProviderCreate, session):
-    provider = session.exec(select(Provider).where(Provider.name == provider.name)).first()
-    if provider:
+    existing_provider = session.exec(select(Provider).where(Provider.name == provider.name)).first()
+    if existing_provider:
         raise ValueError(f"Proveedor con name '{provider.name}' ya existe")
-    provider = session.exec(select(Provider).where(Provider.email == provider.email)).first()
-    if provider:
+    existing_provider = session.exec(select(Provider).where(Provider.email == provider.email)).first()
+    if existing_provider:
         raise ValueError(f"Proveedor con email '{provider.email}' ya existe")
-    provider = session.exec(select(Provider).where(Provider.phone == provider.phone)).first()
-    if provider:
+    existing_provider = session.exec(select(Provider).where(Provider.phone == provider.phone)).first()
+    if existing_provider:
         raise ValueError(f"Proveedor con phone '{provider.phone}' ya existe")
 
     return True
 
 def create_provider_db(provider: ProviderCreate, session):
     try:
+        print(provider)
         unique_constraint_provider(provider, session)
         db_provider = Provider(
             name= provider.name,
@@ -32,6 +33,9 @@ def create_provider_db(provider: ProviderCreate, session):
         )
         session.add(db_provider)
         session.commit()
+        session.refresh(db_provider)
+        return db_provider
+    
     except Exception as e:
         session.rollback()
         raise e

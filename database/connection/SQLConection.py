@@ -16,7 +16,11 @@ postgress_railway = os.getenv("DATABASE_URL")
 # connect_args = {"check_same_thread": False}
 # engine = create_engine(postgress_railway, connect_args=connect_args)
 # async_engine = create_async_engine(postgress_railway, echo=True)
-engine = create_engine(postgress_railway)
+# engine = create_engine(postgress_railway)
+
+connect_args = {"check_same_thread": False}
+
+engine = create_engine(postgress_railway, connect_args=connect_args)
 
 def create_db_and_tables():
     SQLModel.metadata.create_all(engine)

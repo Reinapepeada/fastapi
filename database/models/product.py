@@ -234,6 +234,15 @@ class ProductVariantOut(BaseModel):
     class Config:
         from_attributes = True
 
+class ProductVariantOutPaginated(BaseModel):
+    id: int
+    color: str|None
+    stock: int
+    images: Optional[List[ProductImageOut]] = None
+
+    class Config:
+        from_attributes = True
+
 class ProductCreate(BaseModel):
     serial_number: str 
     name: str=StringConstraints(max_length=100,to_lower=True)
@@ -288,11 +297,18 @@ class ProductOut(BaseModel):
 
     class Config:
         from_attributes = True
-    
+
+class ProductOutPaginated(BaseModel):
+    id: int
+    name: str
+    retail_price: float
+    category:Category
+    brand: Brand
+    variants: Optional[List[ProductVariantOut]] = None
 
 # clase que hereda de product out
 class ProductOutPaginated(BaseModel):
-    products: List[ProductOut]
+    products: List[ProductOutPaginated]
     total: int
     page: int
     size: int
